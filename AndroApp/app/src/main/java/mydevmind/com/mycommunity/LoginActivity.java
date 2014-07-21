@@ -16,6 +16,7 @@ import com.parse.ParseQuery;
 
 import java.util.List;
 
+import mydevmind.com.mycommunity.fragment.InscriptionFragment;
 import mydevmind.com.mycommunity.fragment.LoginFragment;
 import mydevmind.com.mycommunity.model.IFragmentActionListener;
 
@@ -26,7 +27,11 @@ public class LoginActivity extends Activity implements IFragmentActionListener {
 
 
     public static final Integer LOGIN_ACTION_INSCRIPTION= 1705;
+    public static final Integer LOGIN_ACTION_RETURN= 1706;
+
     private LoginFragment login;
+    private InscriptionFragment inscription;
+    private boolean isPageLogin= true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,15 +40,41 @@ public class LoginActivity extends Activity implements IFragmentActionListener {
 
         login = new LoginFragment();
         login.setActionListener(this);
+
+        inscription = new InscriptionFragment();
+        inscription.setActionListener(this);
+
         getFragmentManager().beginTransaction()
                 .add(R.id.container, login)
+                .add(R.id.container, inscription)
+                .hide(inscription)
                 .commit();
     }
 
     @Override
     public void onFragmentAction(Integer action) {
         if(action.equals(LOGIN_ACTION_INSCRIPTION)){
-            Toast.makeText(getApplicationContext(), "inscription", Toast.LENGTH_SHORT).show();
+            isPageLogin=false;
+            getFragmentManager().beginTransaction()
+                 .hide(login)
+                 .show(inscription)
+                 .commit();
+        }else if(action.equals(LOGIN_ACTION_RETURN)){
+            this.onBackPressed();
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if(isPageLogin){
+            super.onBackPressed();
+        }else{
+            getFragmentManager().beginTransaction()
+                    .hide(inscription)
+                    .show(login)
+                    .commit();
+            isPageLogin=true;
         }
     }
 }
