@@ -1,4 +1,4 @@
-package mydevmind.com.mycommunity.model;
+package mydevmind.com.mycommunity.fragment;
 
 /**
  * Created by Joan on 21/07/2014.

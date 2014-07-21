@@ -11,11 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.util.List;
 
@@ -23,7 +20,6 @@ import mydevmind.com.mycommunity.API.CommunityAPIManager;
 import mydevmind.com.mycommunity.API.OnApiResultListener;
 import mydevmind.com.mycommunity.LoginActivity;
 import mydevmind.com.mycommunity.R;
-import mydevmind.com.mycommunity.model.IFragmentActionListener;
 
 /**
  * Created by Joan on 16/07/2014.

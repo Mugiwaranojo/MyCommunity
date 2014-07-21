@@ -2,23 +2,10 @@ package mydevmind.com.mycommunity;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import com.parse.FindCallback;
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-
-import java.util.List;
 
 import mydevmind.com.mycommunity.fragment.InscriptionFragment;
 import mydevmind.com.mycommunity.fragment.LoginFragment;
-import mydevmind.com.mycommunity.model.IFragmentActionListener;
+import mydevmind.com.mycommunity.fragment.IFragmentActionListener;
 
 /**
  * Created by Joan on 11/07/2014.
@@ -38,17 +25,20 @@ public class LoginActivity extends Activity implements IFragmentActionListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        login = new LoginFragment();
-        login.setActionListener(this);
+        if(login==null) {
+            login = new LoginFragment();
+            login.setActionListener(this);
 
-        inscription = new InscriptionFragment();
-        inscription.setActionListener(this);
+            inscription = new InscriptionFragment();
+            inscription.setActionListener(this);
 
-        getFragmentManager().beginTransaction()
-                .add(R.id.container, login)
-                .add(R.id.container, inscription)
-                .hide(inscription)
-                .commit();
+
+            getFragmentManager().beginTransaction()
+                    .add(R.id.container, login)
+                    .add(R.id.container, inscription)
+                    .hide(inscription)
+                    .commit();
+        }
     }
 
     @Override

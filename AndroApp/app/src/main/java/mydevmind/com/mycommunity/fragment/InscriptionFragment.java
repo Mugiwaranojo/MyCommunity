@@ -9,7 +9,6 @@ import android.widget.Button;
 
 import mydevmind.com.mycommunity.LoginActivity;
 import mydevmind.com.mycommunity.R;
-import mydevmind.com.mycommunity.model.IFragmentActionListener;
 
 /**
  * Created by Joan on 21/07/2014.
