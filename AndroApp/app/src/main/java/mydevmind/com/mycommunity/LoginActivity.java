@@ -15,6 +15,7 @@ public class LoginActivity extends Activity implements IFragmentActionListener {
 
     public static final Integer LOGIN_ACTION_INSCRIPTION= 1705;
     public static final Integer LOGIN_ACTION_RETURN= 1706;
+    public static final Integer LOGIN_ACTION_CONNECT= 1707;
 
     private LoginFragment login;
     private InscriptionFragment inscription;
@@ -42,7 +43,7 @@ public class LoginActivity extends Activity implements IFragmentActionListener {
     }
 
     @Override
-    public void onFragmentAction(Integer action) {
+    public void onFragmentAction(Integer action, Object obj) {
         if(action.equals(LOGIN_ACTION_INSCRIPTION)){
             isPageLogin=false;
             getFragmentManager().beginTransaction()

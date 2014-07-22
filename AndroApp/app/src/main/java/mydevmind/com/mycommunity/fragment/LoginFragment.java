@@ -26,9 +26,6 @@ import mydevmind.com.mycommunity.R;
  */
 public class LoginFragment extends Fragment implements OnApiResultListener {
 
-    private final String APP_ID="4UNxW53O9e42UjNxLaGma5foAtZQpE22H2IwZ9y3";
-    private final String CLIENT_KEY="zqk5C0BKHuWmSaIrSfuWFVyH4MRlAd7g3iY9uUCg";
-
     private EditText loginField, passwordField;
     private Button loginButton;
     private Button inscriptionButton;
@@ -71,7 +68,7 @@ public class LoginFragment extends Fragment implements OnApiResultListener {
         inscriptionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actionListener.onFragmentAction(LoginActivity.LOGIN_ACTION_INSCRIPTION);
+                actionListener.onFragmentAction(LoginActivity.LOGIN_ACTION_INSCRIPTION, null);
             }
         });
         return v;

@@ -5,5 +5,5 @@ package mydevmind.com.mycommunity.fragment;
  */
 public interface IFragmentActionListener {
 
-    public void onFragmentAction(Integer action);
+    public void onFragmentAction(Integer action, Object obj);
 }

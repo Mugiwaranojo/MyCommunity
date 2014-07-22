@@ -1,5 +1,6 @@
 package mydevmind.com.mycommunity.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +16,15 @@ public class Player {
     private Date createdAt;
     private Date updatedAt;
 
-    private Set<Community> communities= new HashSet<Community>();
+    private ArrayList<Community> communities= new ArrayList<Community>();
+
+    public Player(){
+    }
+
+    public Player(String name, String password){
+        this.name = name;
+        this.password = password;
+    }
 
     public String getObjectId() {
         return objectId;
@@ -57,11 +66,11 @@ public class Player {
         this.updatedAt = updatedAt;
     }
 
-    public Set<Community> getCommunities() {
+    public ArrayList<Community> getCommunities() {
         return communities;
     }
 
-    public void setCommunities(Set<Community> communities) {
+    public void setCommunities(ArrayList<Community> communities) {
         this.communities = communities;
     }
 
