@@ -1,6 +1,7 @@
 package mydevmind.com.mycommunity.fragment;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,11 +14,16 @@ import android.widget.EditText;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 
+import org.json.JSONException;
+
+import mydevmind.com.mycommunity.API.CommunityAPIManager;
 import mydevmind.com.mycommunity.API.DAO.CommunityDAO;
+import mydevmind.com.mycommunity.API.DAO.InscriptionDAO;
 import mydevmind.com.mycommunity.API.DAO.PlayerDAO;
 import mydevmind.com.mycommunity.LoginActivity;
 import mydevmind.com.mycommunity.R;
 import mydevmind.com.mycommunity.model.Community;
+import mydevmind.com.mycommunity.model.Inscription;
 import mydevmind.com.mycommunity.model.Player;
 
 /**
@@ -29,10 +35,10 @@ public class InscriptionFragment extends Fragment {
     private Button inscriptionButton;
     private IFragmentActionListener actionListener;
 
+    private ProgressDialog spinner;
+
     private EditText userName, userPassword, userConfirm;
     private EditText communityName, communityPassword, communityConfirm;
-
-    private CommunityDAO communityDAO;
 
     public void setActionListener(IFragmentActionListener actionListener) {
         this.actionListener = actionListener;
@@ -57,28 +63,26 @@ public class InscriptionFragment extends Fragment {
             }
         });
 
+
+        spinner = new ProgressDialog(getActivity());
+        spinner.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        spinner.setTitle("Inscription ...");
+        spinner.setMessage("Patientez, ceci peut prendre quelques secondes");
+        spinner.setCancelable(false);
+
         inscriptionButton = (Button) v.findViewById(R.id.buttonInscription);
         inscriptionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(validForm()){
+                 if(validForm()){
                     Player player= new Player(userName.getText().toString(), userPassword.getText().toString());
                     Community community= new Community(communityName.getText().toString(), communityPassword.getText().toString());
-
                     try {
-                        CommunityDAO.getInstance(getActivity()).create(community);
-                        PlayerDAO.getInstance(getActivity()).create(player);
-
-                        ParseObject retrievePlayer = PlayerDAO.getInstance(getActivity()).find(userName.getText().toString(), userName.getText().toString());
-                        ParseObject retrieveCommunity = CommunityDAO.getInstance(getActivity()).find(communityName.getText().toString(), communityPassword.getText().toString());
-
-                        Log.d("player", retrievePlayer.getObjectId());
-                        retrievePlayer.put("communities", retrieveCommunity);
-                        retrievePlayer.save();
-                        retrieveCommunity.put("players", retrievePlayer);
-                        retrieveCommunity.save();
+                        CommunityAPIManager.getInstance(getActivity()).inscriptionPlayerWithoutCommunity(player, community);
                     } catch (ParseException e) {
                         e.printStackTrace();
+                    }finally {
+
                     }
                 }
             }

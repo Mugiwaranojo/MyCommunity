@@ -13,6 +13,15 @@ import com.parse.ParseQuery;
 
 import java.util.List;
 
+import mydevmind.com.mycommunity.API.DAO.CommunityDAO;
+import mydevmind.com.mycommunity.API.DAO.InscriptionDAO;
+import mydevmind.com.mycommunity.API.DAO.NotificationDAO;
+import mydevmind.com.mycommunity.API.DAO.PlayerDAO;
+import mydevmind.com.mycommunity.model.Community;
+import mydevmind.com.mycommunity.model.Inscription;
+import mydevmind.com.mycommunity.model.Notification;
+import mydevmind.com.mycommunity.model.Player;
+
 /**
  * Created by Joan on 21/07/2014.
  */
@@ -24,33 +33,43 @@ public class CommunityAPIManager {
     private OnApiResultListener listener;
 
     private static CommunityAPIManager instance;
+    private static Context myContext;
 
     public static CommunityAPIManager getInstance(Context context){
         if(instance==null){
             Parse.initialize(context, APP_ID, CLIENT_KEY);
             instance = new CommunityAPIManager();
+            myContext= context;
         }
         return instance;
     }
 
-    public void connection(String login, String password){
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
-        query.whereEqualTo("name", login);
-        query.whereEqualTo("password", password);
-
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> userList, ParseException e) {
-                if(e==null){
-                   listener.onApiResult(userList, null);
-                }else{
-                    listener.onApiResult(null, e);
-                }
-            }
-        });
-    }
-
     public void setListener(OnApiResultListener listener) {
         this.listener = listener;
+    }
+
+    public void connection(String login, String password){
+        PlayerDAO.getInstance(myContext).findByUserPassword(login, password, listener);
+    }
+
+    public void inscriptionPlayerWithoutCommunity(Player player, Community community) throws ParseException{
+        ParseObject parseCommunity= CommunityDAO.getInstance(myContext).create(community);
+        ParseObject parsePlayer= PlayerDAO.getInstance(myContext).create(player);
+
+        player =  PlayerDAO.getInstance(myContext).find(parsePlayer.getObjectId());
+        community= CommunityDAO.getInstance(myContext).find(parseCommunity.getObjectId());
+
+        Inscription inscription= new Inscription();
+        inscription.setUser(player);
+        inscription.setCommunity(community);
+        InscriptionDAO.getInstance(myContext).create(inscription);
+
+        Notification notification= new Notification();
+        notification.setCommunity(community);
+        notification.setTitle("Bienvenue dans MyCommunity");
+        notification.setText("La communauté permetra à vous et vos amis d'enregistrer vos score FIFA, pour qu'il n'y ait plus de discussion sur les mémoires selective!\n" +
+                "Pour commencer veuillez ajouter les différents membres de votre communauté et tranmettez leurs, leurs accès");
+
+        NotificationDAO.getInstance(myContext).create(notification);
     }
 }

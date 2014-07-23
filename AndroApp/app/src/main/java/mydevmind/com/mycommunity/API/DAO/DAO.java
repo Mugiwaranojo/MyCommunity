@@ -3,6 +3,7 @@ package mydevmind.com.mycommunity.API.DAO;
 import android.content.Context;
 
 import com.parse.ParseException;
+import com.parse.ParseObject;
 
 import org.json.JSONException;
 
@@ -15,7 +16,8 @@ public abstract class DAO<T> {
 
     public CommunityAPIManager apiManager;
 
-    private Context context;
+
+    private static Context context;
 
 
     public DAO(Context context)
@@ -24,7 +26,7 @@ public abstract class DAO<T> {
         apiManager= CommunityAPIManager.getInstance(this.context);
     }
 
-    public Context getContext() {
+    public static Context getContext() {
         return context;
     }
 
@@ -32,12 +34,11 @@ public abstract class DAO<T> {
         this.context = context;
     }
 
-
-    public  abstract  boolean create(T obj) throws ParseException;
+    public  abstract ParseObject create(T obj) throws ParseException;
 
     public  abstract  boolean delete(T obj) throws ParseException;
 
     public  abstract  boolean update(T obj) throws ParseException;
 
-    public  abstract  T find(String objId) throws ParseException, JSONException;
+    public  abstract  T find(String objId) throws ParseException;
 }

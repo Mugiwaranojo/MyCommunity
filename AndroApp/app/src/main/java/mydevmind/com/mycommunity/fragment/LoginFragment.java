@@ -2,6 +2,7 @@ package mydevmind.com.mycommunity.fragment;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import java.util.List;
 import mydevmind.com.mycommunity.API.CommunityAPIManager;
 import mydevmind.com.mycommunity.API.OnApiResultListener;
 import mydevmind.com.mycommunity.LoginActivity;
+import mydevmind.com.mycommunity.MainActivity;
 import mydevmind.com.mycommunity.R;
 
 /**
@@ -81,6 +83,9 @@ public class LoginFragment extends Fragment implements OnApiResultListener {
             Log.d("login", "Retrieved  "+ objects.size()+ " user");
             if(objects.size()==1) {
                 Toast.makeText(getActivity().getApplicationContext(), "Connection OK!!!", Toast.LENGTH_SHORT).show();
+                Intent connectionIntent= new Intent(getActivity(), MainActivity.class);
+                connectionIntent.putExtra("userId", objects.get(0).getObjectId());
+                startActivity(connectionIntent);
             }else{
                 Toast.makeText(getActivity().getApplicationContext(), "Incorrect login/password!!!", Toast.LENGTH_SHORT).show();
             }

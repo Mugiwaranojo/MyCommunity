@@ -16,7 +16,9 @@ public class Community {
     private Date createdAt;
     private Date updatedAt;
 
-    private ArrayList<Player> players= new ArrayList<Player>();
+    private ArrayList<Player> players;
+    private ArrayList<Notification> notifications;
+    private ArrayList<Match> matches;
 
     public Community(){
 
@@ -81,5 +83,37 @@ public class Community {
 
     public void remove(Player player){
         this.players.remove(player);
+    }
+
+    public ArrayList<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(ArrayList<Notification> notifications) {
+        this.notifications = notifications;
+    }
+
+    public void addNotification(Notification notification){
+        this.notifications.add(notification);
+    }
+
+    public void remove(Notification notification){
+        this.notifications.remove(notification);
+    }
+
+    public ArrayList<Match> getMatches() {
+        return matches;
+    }
+
+    public void setMatches(ArrayList<Match> matches) {
+        this.matches = matches;
+    }
+
+    public void addMatch(Match match){
+        this.matches.add(match);
+    }
+
+    public void remove(Match match){
+        this.matches.remove(match);
     }
 }

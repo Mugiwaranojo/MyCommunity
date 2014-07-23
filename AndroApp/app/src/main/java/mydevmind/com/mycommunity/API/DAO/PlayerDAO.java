@@ -2,6 +2,7 @@ package mydevmind.com.mycommunity.API.DAO;
 
 import android.content.Context;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -12,7 +13,9 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+import mydevmind.com.mycommunity.API.OnApiResultListener;
 import mydevmind.com.mycommunity.model.Community;
+import mydevmind.com.mycommunity.model.Inscription;
 import mydevmind.com.mycommunity.model.Player;
 
 /**
@@ -21,11 +24,9 @@ import mydevmind.com.mycommunity.model.Player;
 public class PlayerDAO extends DAO<Player> {
 
     public static PlayerDAO instance;
-    private Context context;
 
     private PlayerDAO(Context context) {
         super(context);
-        this.context = context;
     }
 
     public  static PlayerDAO getInstance(Context context){
@@ -36,12 +37,13 @@ public class PlayerDAO extends DAO<Player> {
     }
 
     @Override
-    public boolean create(Player obj) throws ParseException {
+    public ParseObject create(Player obj) throws ParseException {
         ParseObject player=  new ParseObject("Player");
         player.put("name", obj.getName());
         player.put("password", obj.getPassword());
         player.save();
-        return true;
+        player.refresh();
+        return player;
     }
 
     @Override
@@ -74,41 +76,48 @@ public class PlayerDAO extends DAO<Player> {
     }
 
     @Override
-    public Player find(String objId) throws ParseException, JSONException {
+    public Player find(String objId) throws ParseException {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
         query.whereEqualTo("objectId", objId);
-
         List<ParseObject> result= query.find();
         if(result.size()==1){
             ParseObject obj= result.get(0);
-            Player player= new Player();
-            player.setObjectId(objId);
-            player.setName(obj.getString("name"));
-            player.setPassword(obj.getString("password"));
-            player.setCreatedAt(obj.getCreatedAt());
-            player.setUpdatedAt(obj.getUpdatedAt());
-            JSONArray communitiesIds= obj.getJSONArray("communities");
-            ArrayList<Community> communities= new ArrayList<Community>();
-            for(int i=0; i<communitiesIds.length(); i++){
-                String id= communitiesIds.getString(i);
-                Community community= CommunityDAO.getInstance(context).find(id);
-                communities.add(community);
-            }
-            player.setCommunities(communities);
+            Player player= parseObjectToPlayer(obj);
             return player;
         }
         return null;
     }
 
-    public ParseObject find(String name, String password) throws ParseException {
-        ParseQuery query = ParseQuery.getQuery("Player");
-        query.include("communities");
-        query.whereEqualTo("name", name);
-        query.whereEqualTo("password", password);
-        List<ParseObject> result= query.find();
-        if(result.size()==1){
-            return result.get(0);
+    public static Player parseObjectToPlayer(ParseObject obj) throws ParseException {
+        Player player= new Player();
+        player.setObjectId(obj.getObjectId());
+        player.setName(obj.getString("name"));
+        player.setPassword(obj.getString("password"));
+        player.setCreatedAt(obj.getCreatedAt());
+        player.setUpdatedAt(obj.getUpdatedAt());
+        ArrayList<Inscription> inscriptions= InscriptionDAO.getInstance(getContext()).findByUser(player);
+        ArrayList<Community> communities= new ArrayList<Community>();
+        for(Inscription inscription: inscriptions){
+            communities.add(inscription.getCommunity());
         }
-        return  null;
+        player.setCommunities(communities);
+        return player;
+    }
+
+
+    public void findByUserPassword(String login, String password, final OnApiResultListener listener){
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
+        query.whereEqualTo("name", login);
+        query.whereEqualTo("password", password);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> userList, ParseException e) {
+                if(e==null){
+                    listener.onApiResult(userList, null);
+                }else{
+                    listener.onApiResult(null, e);
+                }
+            }
+        });
     }
 }

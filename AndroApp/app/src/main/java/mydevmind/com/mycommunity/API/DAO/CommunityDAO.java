@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mydevmind.com.mycommunity.model.Community;
+import mydevmind.com.mycommunity.model.Inscription;
+import mydevmind.com.mycommunity.model.Match;
+import mydevmind.com.mycommunity.model.Notification;
 import mydevmind.com.mycommunity.model.Player;
 
 /**
@@ -20,12 +23,9 @@ import mydevmind.com.mycommunity.model.Player;
  */
 public class CommunityDAO extends DAO<Community> {
 
-    public static CommunityDAO instance;
-    private Context context;
-
+    private static CommunityDAO instance;
     private CommunityDAO(Context context) {
         super(context);
-        this.context = context;
     }
 
     public static CommunityDAO getInstance(Context context) {
@@ -36,12 +36,13 @@ public class CommunityDAO extends DAO<Community> {
     }
 
     @Override
-    public boolean create(Community obj) throws ParseException {
+    public ParseObject create(Community obj) throws ParseException {
         ParseObject community=  new ParseObject("Community");
         community.put("name", obj.getName());
         community.put("password", obj.getPassword());
         community.save();
-        return true;
+        community.refresh();
+        return community;
     }
 
     @Override
@@ -74,39 +75,40 @@ public class CommunityDAO extends DAO<Community> {
     }
 
     @Override
-    public Community find(String objId) throws ParseException, JSONException {
+    public Community find(String objId) throws ParseException {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Community");
         query.whereEqualTo("objectId", objId);
 
         List<ParseObject> result= query.find();
         if(result.size()==1){
             ParseObject obj= result.get(0);
-            Community community= new Community();
-            community.setObjectId(objId);
-            community.setName(obj.getString("name"));
-            community.setPassword(obj.getString("password"));
-            community.setCreatedAt(obj.getCreatedAt());
-            community.setUpdatedAt(obj.getUpdatedAt());
-            JSONArray playersIds= obj.getJSONArray("players");
-            ArrayList<Player> players= new ArrayList<Player>();
-            for(int i=0; i<playersIds.length(); i++){
-                String id= playersIds.getString(i);
-                Player player= PlayerDAO.getInstance(context).find(id);
-                players.add(player);
-            }
+            Community community= parseObjectToCommunity(obj);
             return community;
+
         }
         return null;
     }
 
-    public ParseObject find(String name, String password) throws ParseException {
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Community");
-        query.whereEqualTo("name", name);
-        query.whereEqualTo("password", password);
-        List<ParseObject> result= query.find();
-        if(result.size()==1){
-            return result.get(0);
+    public static Community parseObjectToCommunity(ParseObject obj) throws ParseException {
+        Community community= new Community();
+        community.setObjectId(obj.getObjectId());
+        community.setName(obj.getString("name"));
+        community.setPassword(obj.getString("password"));
+        community.setCreatedAt(obj.getCreatedAt());
+        community.setUpdatedAt(obj.getUpdatedAt());
+
+        ArrayList<Inscription> inscriptions= InscriptionDAO.getInstance(getContext()).findByCommunity(community);
+        ArrayList<Player> players= new ArrayList<Player>();
+        for(Inscription inscription: inscriptions){
+            players.add(inscription.getUser());
         }
-        return  null;
+        community.setPlayers(players);
+
+        ArrayList<Notification> notifications= NotificationDAO.getInstance(getContext()).findByCommunity(community);
+        community.setNotifications(notifications);
+
+        ArrayList<Match> matches= MatchDAO.getInstance(getContext()).findByCommunity(community);
+        community.setMatches(matches);
+        return community;
     }
 }
