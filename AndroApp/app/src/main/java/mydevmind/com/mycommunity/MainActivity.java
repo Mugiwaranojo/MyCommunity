@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 
 import mydevmind.com.mycommunity.fragment.CommunityFragment;
+import mydevmind.com.mycommunity.fragment.IFragmentActionListener;
 import mydevmind.com.mycommunity.fragment.NavigationDrawerFragment;
 
 
@@ -56,9 +57,11 @@ public class MainActivity extends Activity
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
+        if (findViewById(R.id.listViewMainInformations) != null){
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, communityFragment)
+                    .commit();
+        }
     }
 
     public void onSectionAttached(int number) {
