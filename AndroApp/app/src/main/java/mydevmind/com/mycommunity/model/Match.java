@@ -97,8 +97,16 @@ public class Match implements Information {
 
     @Override
     public String getText() {
-        return this.scoreFrom+ " - " + this.scoreTo+"\n"+
-                this.createdAt.toString()+" : \n"+
+        return this.scoreFrom+ " - " + this.scoreTo+"\n"+"\n"+
                 this.getComment();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if(o instanceof Information){
+            Information information=(Information) o;
+            return getCreatedAt().compareTo(information.getCreatedAt());
+        }
+        return 0;
     }
 }

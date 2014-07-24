@@ -12,6 +12,7 @@ import java.util.List;
 import mydevmind.com.mycommunity.model.Community;
 import mydevmind.com.mycommunity.model.Inscription;
 import mydevmind.com.mycommunity.model.Notification;
+import mydevmind.com.mycommunity.model.Player;
 
 /**
  * Created by Joan on 23/07/2014.
@@ -93,9 +94,9 @@ public class NotificationDAO extends DAO<Notification> {
         notification.setText(obj.getString("text"));
         notification.setCreatedAt(obj.getCreatedAt());
         notification.setUpdatedAt(obj.getUpdatedAt());
-        notification.setCommunity(CommunityDAO.parseObjectToCommunity(obj.getParseObject("community")));
+        notification.setCommunity(new Community(obj.getParseObject("community").getObjectId()));
         if(obj.getParseObject("writer")!=null){
-            notification.setWriter(PlayerDAO.parseObjectToPlayer(obj.getParseObject("writer")));
+            notification.setWriter(new Player(obj.getParseObject("writer").getObjectId()));
         }
         return notification;
     }

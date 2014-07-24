@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Created by Joan on 23/07/2014.
  */
-public interface Information {
+public interface Information extends Comparable {
 
     public Date getCreatedAt();
     public String getTitle();

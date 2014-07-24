@@ -21,6 +21,10 @@ public class Player {
     public Player(){
     }
 
+    public Player(String objectId){
+        this.objectId= objectId;
+    }
+
     public Player(String name, String password){
         this.name = name;
         this.password = password;

@@ -1,6 +1,7 @@
 package mydevmind.com.mycommunity.API.DAO;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -88,23 +89,6 @@ public class PlayerDAO extends DAO<Player> {
         return null;
     }
 
-    public static Player parseObjectToPlayer(ParseObject obj) throws ParseException {
-        Player player= new Player();
-        player.setObjectId(obj.getObjectId());
-        player.setName(obj.getString("name"));
-        player.setPassword(obj.getString("password"));
-        player.setCreatedAt(obj.getCreatedAt());
-        player.setUpdatedAt(obj.getUpdatedAt());
-        ArrayList<Inscription> inscriptions= InscriptionDAO.getInstance(getContext()).findByUser(player);
-        ArrayList<Community> communities= new ArrayList<Community>();
-        for(Inscription inscription: inscriptions){
-            communities.add(inscription.getCommunity());
-        }
-        player.setCommunities(communities);
-        return player;
-    }
-
-
     public void findByUserPassword(String login, String password, final OnApiResultListener listener){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
         query.whereEqualTo("name", login);
@@ -119,5 +103,21 @@ public class PlayerDAO extends DAO<Player> {
                 }
             }
         });
+    }
+
+    public static Player parseObjectToPlayer(ParseObject obj) throws ParseException {
+        Player player= new Player();
+        player.setObjectId(obj.getObjectId());
+        player.setName(obj.getString("name"));
+        player.setPassword(obj.getString("password"));
+        player.setCreatedAt(obj.getCreatedAt());
+        player.setUpdatedAt(obj.getUpdatedAt());
+        ArrayList<Inscription> inscriptions= InscriptionDAO.getInstance(getContext()).findByUser(player);
+        ArrayList<Community> communities= new ArrayList<Community>();
+        for(Inscription inscription: inscriptions){
+            communities.add(inscription.getCommunity());
+        }
+        player.setCommunities(communities);
+        return player;
     }
 }

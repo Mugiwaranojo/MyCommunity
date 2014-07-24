@@ -73,4 +73,13 @@ public class Notification implements Information{
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @Override
+    public int compareTo(Object o) {
+        if(o instanceof Information){
+            Information information=(Information) o;
+            return getCreatedAt().compareTo(information.getCreatedAt());
+        }
+        return 0;
+    }
 }

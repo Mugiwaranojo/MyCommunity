@@ -103,8 +103,8 @@ public class InscriptionDAO extends DAO<Inscription> {
         inscription.setObjectId(obj.getObjectId());
         inscription.setCreatedAt(obj.getCreatedAt());
         inscription.setUpdatedAt(obj.getUpdatedAt());
-        inscription.setUser(PlayerDAO.parseObjectToPlayer(obj.getParseObject("user")));
-        inscription.setCommunity(CommunityDAO.parseObjectToCommunity(obj.getParseObject("community")));
+        inscription.setUser(new Player(obj.getParseObject("user").getObjectId()));
+        inscription.setCommunity(new Community(obj.getParseObject("community").getObjectId()));
         return inscription;
     }
 }

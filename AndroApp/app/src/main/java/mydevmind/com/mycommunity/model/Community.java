@@ -24,6 +24,11 @@ public class Community {
 
     }
 
+    public Community(String objectId){
+        this.objectId= objectId;
+    }
+
+
     public Community(String name, String password){
         this.name = name;
         this.password = password;
