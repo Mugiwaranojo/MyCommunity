@@ -1,6 +1,17 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity" >
+    <item android:id="@+id/action_add_match"
+        android:title="@string/field_add_match"
+        android:showAsAction="withText|ifRoom" />
+    <item android:id="@+id/action_add_player"
+        android:title="@string/field_add_player"
+        android:showAsAction="never" />
+    <item android:id="@+id/action_add_notification"
+        android:title="@string/field_add_notification"
+        android:showAsAction="never" />
     <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:title="@string/field_settings"
         android:orderInCategory="100"
         android:showAsAction="never" />
 </menu>

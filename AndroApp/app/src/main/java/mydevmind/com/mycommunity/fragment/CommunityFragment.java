@@ -62,7 +62,7 @@ public class CommunityFragment extends Fragment {
             for(Match m:currentCommunity.getMatches()){
                 informations.add(m);
             }
-            Collections.sort(informations);
+            Collections.sort(informations, Collections.reverseOrder());
 
             listViewInformations= (ListView) v.findViewById(R.id.listViewMainInformations);
             adapter= new InformationAdapter(getActivity(), informations);
@@ -71,8 +71,20 @@ public class CommunityFragment extends Fragment {
             e.printStackTrace();
         }
 
-
-
         return v;
+    }
+
+    public void updateList() throws ParseException {
+        ArrayList<Information> temp= new ArrayList<Information>();
+        currentCommunity= CommunityDAO.getInstance(getActivity()).find(currentCommunity.getObjectId());
+        for(Notification n:currentCommunity.getNotifications()){
+            temp.add(n);
+        }
+        for(Match m:currentCommunity.getMatches()){
+            temp.add(m);
+        }
+        Collections.sort(temp);
+        informations= temp;
+        listViewInformations.invalidate();
     }
 }

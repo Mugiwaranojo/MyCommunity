@@ -72,4 +72,22 @@ public class CommunityAPIManager {
 
         NotificationDAO.getInstance(myContext).create(notification);
     }
+
+    public void addPlayerInCommunity(Player player, Community community) throws ParseException {
+        ParseObject parsePlayer= PlayerDAO.getInstance(myContext).create(player);
+        player =  PlayerDAO.getInstance(myContext).find(parsePlayer.getObjectId());
+        community= CommunityDAO.getInstance(myContext).find(community.getObjectId());
+
+        Inscription inscription= new Inscription();
+        inscription.setUser(player);
+        inscription.setCommunity(community);
+        InscriptionDAO.getInstance(myContext).create(inscription);
+
+        Notification notification= new Notification();
+        notification.setCommunity(community);
+        notification.setTitle(player.getName()+" a rejoint vôtre communauté");
+        notification.setText(player.getName()+" est un nouveau concourant. Mettez le à l'épreuve dès maintenant en lui proposant un match.");
+
+        NotificationDAO.getInstance(myContext).create(notification);
+    }
 }

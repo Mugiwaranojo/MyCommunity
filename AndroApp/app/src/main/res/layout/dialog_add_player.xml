@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TableLayout
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:paddingRight="20dp"
+                android:layout_weight="50"
+                android:text="Identifiant :"
+                android:id="@+id/textViewLogin" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:inputType="textPersonName"
+                android:hint="Surnom"
+                android:id="@+id/editTextPName" />
+        </TableRow>
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Mot de passe :"
+                android:id="@+id/textViewUserPassword" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:inputType="textPassword"
+                android:hint="mot de passe"
+                android:ems="10"
+                android:id="@+id/editTextPPassword" />
+
+        </TableRow>
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Confirmation :"
+                android:id="@+id/textViewUserConfirm" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:inputType="textPassword"
+                android:hint="mot de passe"
+                android:ems="10"
+                android:id="@+id/editTextPConfirm" />
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="20dp"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Enregistrer"
+                android:layout_weight="70"
+                android:id="@+id/buttonSavePlayer" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="30"
+                android:text="Annuler"
+                android:id="@+id/buttonCancelPlayer" />
+        </TableRow>
+    </TableLayout>
+
+</LinearLayout>

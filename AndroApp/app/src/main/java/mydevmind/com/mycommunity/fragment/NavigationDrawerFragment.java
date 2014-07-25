@@ -22,14 +22,19 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.parse.ParseException;
+
+import mydevmind.com.mycommunity.API.CommunityAPIManager;
+import mydevmind.com.mycommunity.API.DAO.PlayerDAO;
 import mydevmind.com.mycommunity.R;
+import mydevmind.com.mycommunity.model.Player;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends Fragment implements PlayerDialogFragment.IOnSubmitPlayerListener {
 
     /**
      * Remember the position of the selected item.
@@ -60,6 +65,8 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
+    private PlayerDialogFragment playerDialogFragment;
+
     public NavigationDrawerFragment() {
     }
 
@@ -77,8 +84,22 @@ public class NavigationDrawerFragment extends Fragment {
             mFromSavedInstanceState = true;
         }
 
+        playerDialogFragment= new PlayerDialogFragment();
+        playerDialogFragment.setListener(this);
+
         // Select either the default item (0) or the last selected item.
         selectItem(mCurrentSelectedPosition);
+    }
+
+    @Override
+    public void onSubmitPlayerListener(Player player) {
+        try {
+            CommunityAPIManager.getInstance(getActivity()).addPlayerInCommunity(player, CommunityFragment.getCurrentCommunity());
+            Toast.makeText(getActivity(), "Joueur ajouté", Toast.LENGTH_SHORT).show();
+            mCallbacks.onNavigationDrawerItemSelected(0);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -249,8 +270,8 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_example) {
-            Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
+        if (item.getItemId() == R.id.action_add_player) {
+            playerDialogFragment.show(getFragmentManager(), getString(R.id.action_add_player));
             return true;
         }
 
@@ -271,6 +292,8 @@ public class NavigationDrawerFragment extends Fragment {
     private ActionBar getActionBar() {
         return getActivity().getActionBar();
     }
+
+
 
     /**
      * Callbacks interface that all activities using this fragment must implement.

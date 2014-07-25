@@ -8,7 +8,10 @@
     <string name="title_sectionAddPlayer">Ajouter joueur</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="action_example">Example action</string>
-    <string name="action_settings">Settings</string>
+
+    <string name="field_add_match">Nouveau match</string>
+    <string name="field_add_notification">Nouvelle Notification</string>
+    <string name="field_add_player">Nouveau Joueur</string>
+    <string name="field_settings">Paramètres</string>
 
 </resources>

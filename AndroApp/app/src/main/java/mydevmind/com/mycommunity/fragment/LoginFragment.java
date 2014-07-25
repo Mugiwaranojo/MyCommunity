@@ -78,7 +78,6 @@ public class LoginFragment extends Fragment implements OnApiResultListener {
 
     @Override
     public void onApiResult(List<ParseObject> objects, ParseException e) {
-        spinner.dismiss();
         if(e==null){
             Log.d("login", "Retrieved  "+ objects.size()+ " user");
             if(objects.size()==1) {
@@ -92,5 +91,6 @@ public class LoginFragment extends Fragment implements OnApiResultListener {
         }else{
             Log.d("login", "Error: "+e.getMessage());
         }
+        spinner.dismiss();
     }
 }
