@@ -1,5 +1,6 @@
 package mydevmind.com.mycommunity.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -8,7 +9,7 @@ import java.util.Set;
 /**
  * Created by Joan on 21/07/2014.
  */
-public class Player {
+public class Player implements Serializable {
 
     private String objectId;
     private String name;

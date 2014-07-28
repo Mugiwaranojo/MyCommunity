@@ -1,7 +1,8 @@
-package mydevmind.com.mycommunity.fragment;
+package mydevmind.com.mycommunity.fragment.Login;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,10 +21,14 @@ import mydevmind.com.mycommunity.API.CommunityAPIManager;
 import mydevmind.com.mycommunity.API.DAO.CommunityDAO;
 import mydevmind.com.mycommunity.API.DAO.InscriptionDAO;
 import mydevmind.com.mycommunity.API.DAO.PlayerDAO;
+import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.LoginActivity;
+import mydevmind.com.mycommunity.MainActivity;
 import mydevmind.com.mycommunity.R;
+import mydevmind.com.mycommunity.fragment.IFragmentActionListener;
 import mydevmind.com.mycommunity.model.Community;
 import mydevmind.com.mycommunity.model.Inscription;
+import mydevmind.com.mycommunity.model.Notification;
 import mydevmind.com.mycommunity.model.Player;
 
 /**
@@ -75,15 +80,25 @@ public class InscriptionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                  if(validForm()){
-                    Player player= new Player(userName.getText().toString(), userPassword.getText().toString());
+                    spinner.show();
+                    final Player player= new Player(userName.getText().toString(), userPassword.getText().toString());
                     Community community= new Community(communityName.getText().toString(), communityPassword.getText().toString());
-                    try {
-                        CommunityAPIManager.getInstance(getActivity()).inscriptionPlayerWithoutCommunity(player, community);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }finally {
-
-                    }
+                    CommunityAPIManager.setPlayerListener(new IAPIResultListener<Player>() {
+                        @Override
+                        public void onApiResultListener(Player obj, ParseException e) {
+                            spinner.dismiss();
+                            Intent connectionIntent = new Intent(getActivity(), MainActivity.class);
+                            connectionIntent.putExtra("player", obj);
+                            startActivity(connectionIntent);
+                        }
+                    });
+                    CommunityAPIManager.setNotificationListener(new IAPIResultListener<Notification>() {
+                        @Override
+                        public void onApiResultListener(Notification obj, ParseException e) {
+                            CommunityAPIManager.getInstance(getActivity()).connection(player.getName(), player.getPassword());
+                        }
+                    });
+                    CommunityAPIManager.getInstance(getActivity()).inscriptionPlayerAndCommunity(player, community);
                 }
             }
         });

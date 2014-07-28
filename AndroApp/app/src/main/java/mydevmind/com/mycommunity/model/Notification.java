@@ -1,11 +1,12 @@
 package mydevmind.com.mycommunity.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Joan on 23/07/2014.
  */
-public class Notification implements Information{
+public class Notification implements Information, Serializable{
 
     private String objectId;
     private Community community;
@@ -57,7 +58,6 @@ public class Notification implements Information{
         this.text = text;
     }
 
-    @Override
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -75,10 +75,15 @@ public class Notification implements Information{
     }
 
     @Override
+    public Date getDate(){
+        return createdAt;
+    }
+
+    @Override
     public int compareTo(Object o) {
         if(o instanceof Information){
             Information information=(Information) o;
-            return getCreatedAt().compareTo(information.getCreatedAt());
+            return getCreatedAt().compareTo(information.getDate());
         }
         return 0;
     }

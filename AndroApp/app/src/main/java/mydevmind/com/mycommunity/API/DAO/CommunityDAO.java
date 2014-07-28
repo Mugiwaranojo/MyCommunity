@@ -2,16 +2,16 @@ package mydevmind.com.mycommunity.API.DAO;
 
 import android.content.Context;
 
+import com.parse.DeleteCallback;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
+import com.parse.SaveCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.model.Community;
 import mydevmind.com.mycommunity.model.Inscription;
 import mydevmind.com.mycommunity.model.Match;
@@ -36,79 +36,89 @@ public class CommunityDAO extends DAO<Community> {
     }
 
     @Override
-    public ParseObject create(Community obj) throws ParseException {
-        ParseObject community=  new ParseObject("Community");
+    public void create(Community obj,final IAPIResultListener<Community> listener){
+        final ParseObject community=  new ParseObject("Community");
         community.put("name", obj.getName());
         community.put("password", obj.getPassword());
-        community.save();
-        community.refresh();
-        return community;
+        community.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                listener.onApiResultListener(parseObjectToCommunity(community), e);
+            }
+        });
     }
 
     @Override
-    public boolean delete(Community obj) throws ParseException {
+    public void delete(Community obj,final IAPIResultListener<Community> listener){
+       ParseQuery<ParseObject> query = ParseQuery.getQuery("Community");
+        query.whereEqualTo("objectId", obj.getObjectId());
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if(parseObjects.size()==1){
+                    final ParseObject community= parseObjects.get(0);
+                    community.deleteInBackground(new DeleteCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            listener.onApiResultListener(parseObjectToCommunity(community), e);
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public void update(final Community obj, final IAPIResultListener<Community> listener){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Community");
         query.whereEqualTo("objectId", obj.getObjectId());
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if(parseObjects.size()==1){
+                    final ParseObject community= parseObjects.get(0);
+                    community.put("name", obj.getName());
+                    community.put("password", obj.getPassword());
+                    community.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            listener.onApiResultListener(parseObjectToCommunity(community), e);
+                        }
+                    });
+                }
+            }
+        });
 
-        List<ParseObject> result= query.find();
-        if(result.size()==1){
-            ParseObject community= result.get(0);
-            community.delete();
-            return true;
-        }
-        return false;
     }
 
     @Override
-    public boolean update(Community obj) throws ParseException {
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Community");
-        query.whereEqualTo("objectId", obj.getObjectId());
-
-        List<ParseObject> result= query.find();
-        if(result.size()==1){
-            ParseObject community= result.get(0);
-            community.put("name", obj.getName());
-            community.put("password", obj.getPassword());
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Community find(String objId) throws ParseException {
+    public void find(String objId, final IAPIResultListener<Community> listener){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Community");
         query.whereEqualTo("objectId", objId);
-
-        List<ParseObject> result= query.find();
-        if(result.size()==1){
-            ParseObject obj= result.get(0);
-            Community community= parseObjectToCommunity(obj);
-            return community;
-
-        }
-        return null;
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if(parseObjects.size()==1){
+                    listener.onApiResultListener(parseObjectToCommunity(parseObjects.get(0)), e);
+                }else {
+                    listener.onApiResultListener(null, e);
+                }
+            }
+        });
     }
 
-    public static Community parseObjectToCommunity(ParseObject obj) throws ParseException {
+    public static Community parseObjectToCommunity(ParseObject obj){
         Community community= new Community();
         community.setObjectId(obj.getObjectId());
-        community.setName(obj.getString("name"));
-        community.setPassword(obj.getString("password"));
-        community.setCreatedAt(obj.getCreatedAt());
-        community.setUpdatedAt(obj.getUpdatedAt());
-
-        ArrayList<Inscription> inscriptions= InscriptionDAO.getInstance(getContext()).findByCommunity(community);
-        ArrayList<Player> players= new ArrayList<Player>();
-        for(Inscription inscription: inscriptions){
-            players.add(inscription.getUser());
+        try {
+            community.setName(obj.getString("name"));
+            community.setPassword(obj.getString("password"));
+            community.setCreatedAt(obj.getCreatedAt());
+            community.setUpdatedAt(obj.getUpdatedAt());
+        }catch (IllegalStateException e){
+            e.printStackTrace();
         }
-        community.setPlayers(players);
-
-        ArrayList<Notification> notifications= NotificationDAO.getInstance(getContext()).findByCommunity(community);
-        community.setNotifications(notifications);
-
-        ArrayList<Match> matches= MatchDAO.getInstance(getContext()).findByCommunity(community);
-        community.setMatches(matches);
         return community;
     }
 }

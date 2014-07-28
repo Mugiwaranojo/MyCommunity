@@ -1,4 +1,4 @@
-package mydevmind.com.mycommunity.fragment;
+package mydevmind.com.mycommunity.fragment.Dialog;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import mydevmind.com.mycommunity.R;
+import mydevmind.com.mycommunity.fragment.NavigationDrawerFragment;
 import mydevmind.com.mycommunity.model.Player;
 
 /**
@@ -26,7 +27,7 @@ public class PlayerDialogFragment extends DialogFragment {
     private Button  buttonCancelPlayer;
     private  IOnSubmitPlayerListener listener;
 
-    interface IOnSubmitPlayerListener{
+    public interface IOnSubmitPlayerListener{
         void onSubmitPlayerListener(Player player);
     }
 
@@ -54,8 +55,8 @@ public class PlayerDialogFragment extends DialogFragment {
                 if(validForm()){
                     Player player= new Player(editTextLogin.getText().toString(),
                                               editTextPassword.getText().toString());
-                    listener.onSubmitPlayerListener(player);
                     dismiss();
+                    listener.onSubmitPlayerListener(player);
                 }
             }
         });

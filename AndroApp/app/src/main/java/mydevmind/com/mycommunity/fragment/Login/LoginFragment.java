@@ -1,4 +1,4 @@
-package mydevmind.com.mycommunity.fragment;
+package mydevmind.com.mycommunity.fragment.Login;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -18,15 +18,17 @@ import com.parse.ParseObject;
 import java.util.List;
 
 import mydevmind.com.mycommunity.API.CommunityAPIManager;
-import mydevmind.com.mycommunity.API.OnApiResultListener;
+import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.LoginActivity;
 import mydevmind.com.mycommunity.MainActivity;
 import mydevmind.com.mycommunity.R;
+import mydevmind.com.mycommunity.fragment.IFragmentActionListener;
+import mydevmind.com.mycommunity.model.Player;
 
 /**
  * Created by Joan on 16/07/2014.
  */
-public class LoginFragment extends Fragment implements OnApiResultListener {
+public class LoginFragment extends Fragment implements IAPIResultListener<Player> {
 
     private EditText loginField, passwordField;
     private Button loginButton;
@@ -57,7 +59,7 @@ public class LoginFragment extends Fragment implements OnApiResultListener {
         spinner.setCancelable(false);
 
         apiManager = CommunityAPIManager.getInstance(getActivity());
-        apiManager.setListener(this);
+        apiManager.setPlayerListener(this);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,19 +79,14 @@ public class LoginFragment extends Fragment implements OnApiResultListener {
     }
 
     @Override
-    public void onApiResult(List<ParseObject> objects, ParseException e) {
-        if(e==null){
-            Log.d("login", "Retrieved  "+ objects.size()+ " user");
-            if(objects.size()==1) {
-                Toast.makeText(getActivity().getApplicationContext(), "Connection OK!!!", Toast.LENGTH_SHORT).show();
-                Intent connectionIntent= new Intent(getActivity(), MainActivity.class);
-                connectionIntent.putExtra("userId", objects.get(0).getObjectId());
-                startActivity(connectionIntent);
-            }else{
-                Toast.makeText(getActivity().getApplicationContext(), "Incorrect login/password!!!", Toast.LENGTH_SHORT).show();
-            }
+    public void onApiResultListener(Player player, ParseException e) {
+        if(player!=null){
+            Toast.makeText(getActivity().getApplicationContext(), "Connection OK!!!", Toast.LENGTH_SHORT).show();
+            Intent connectionIntent= new Intent(getActivity(), MainActivity.class);
+            connectionIntent.putExtra("player", player);
+            startActivity(connectionIntent);
         }else{
-            Log.d("login", "Error: "+e.getMessage());
+            Toast.makeText(getActivity().getApplicationContext(), "Incorrect login/password!!!", Toast.LENGTH_SHORT).show();
         }
         spinner.dismiss();
     }

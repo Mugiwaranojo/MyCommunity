@@ -64,12 +64,6 @@ public class MainActivity extends Activity
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, communityFragment)
                         .commit();
-            try {
-                communityFragment.updateList();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-
         }
     }
 

@@ -1,11 +1,12 @@
 package mydevmind.com.mycommunity.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Joan on 23/07/2014.
  */
-public class Match implements Information {
+public class Match implements Information, Serializable {
 
     private String objectId;
     private Community community;
@@ -73,6 +74,10 @@ public class Match implements Information {
         this.comment = comment;
     }
 
+    public Date getCreatedAt() {
+        return this.createdAt;
+    }
+
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
@@ -86,8 +91,8 @@ public class Match implements Information {
     }
 
     @Override
-    public Date getCreatedAt() {
-        return this.getCreatedAt();
+    public  Date getDate(){
+        return createdAt;
     }
 
     @Override
@@ -105,7 +110,7 @@ public class Match implements Information {
     public int compareTo(Object o) {
         if(o instanceof Information){
             Information information=(Information) o;
-            return getCreatedAt().compareTo(information.getCreatedAt());
+            return getCreatedAt().compareTo(information.getDate());
         }
         return 0;
     }

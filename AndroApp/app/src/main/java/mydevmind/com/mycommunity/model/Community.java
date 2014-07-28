@@ -1,6 +1,8 @@
 package mydevmind.com.mycommunity.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,7 +10,7 @@ import java.util.Set;
 /**
  * Created by Joan on 21/07/2014.
  */
-public class Community {
+public class Community implements Serializable {
 
     private String objectId;
     private String name;
@@ -120,5 +122,17 @@ public class Community {
 
     public void remove(Match match){
         this.matches.remove(match);
+    }
+
+    public ArrayList<Information> getInformations(){
+        ArrayList<Information> list= new ArrayList<Information>();
+        for(Notification n: getNotifications()){
+            list.add(n);
+        }
+        for (Match m: getMatches()){
+            list.add(m);
+        }
+        Collections.sort(list, Collections.reverseOrder());
+        return list;
     }
 }

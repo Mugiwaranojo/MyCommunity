@@ -3,8 +3,8 @@ package mydevmind.com.mycommunity;
 import android.app.Activity;
 import android.os.Bundle;
 
-import mydevmind.com.mycommunity.fragment.InscriptionFragment;
-import mydevmind.com.mycommunity.fragment.LoginFragment;
+import mydevmind.com.mycommunity.fragment.Login.InscriptionFragment;
+import mydevmind.com.mycommunity.fragment.Login.LoginFragment;
 import mydevmind.com.mycommunity.fragment.IFragmentActionListener;
 
 /**

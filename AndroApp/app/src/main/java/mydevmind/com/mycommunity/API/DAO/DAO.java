@@ -2,43 +2,38 @@ package mydevmind.com.mycommunity.API.DAO;
 
 import android.content.Context;
 
-import com.parse.ParseException;
-import com.parse.ParseObject;
+import com.parse.Parse;
 
-import org.json.JSONException;
-
-import mydevmind.com.mycommunity.API.CommunityAPIManager;
+import mydevmind.com.mycommunity.API.IAPIResultListener;
+import mydevmind.com.mycommunity.model.Inscription;
 
 /**
  * Created by Joan on 21/07/2014.
  */
 public abstract class DAO<T> {
 
-    public CommunityAPIManager apiManager;
-
+    private static final String APP_ID="4UNxW53O9e42UjNxLaGma5foAtZQpE22H2IwZ9y3";
+    private static final String CLIENT_KEY="zqk5C0BKHuWmSaIrSfuWFVyH4MRlAd7g3iY9uUCg";
 
     private static Context context;
 
-
-    public DAO(Context context)
-    {
-        this.context= context;
-        apiManager= CommunityAPIManager.getInstance(this.context);
+    public DAO(Context context){
+        Parse.initialize(context, APP_ID, CLIENT_KEY);
     }
 
     public static Context getContext() {
         return context;
     }
 
-    public void setContext(Context context) {
-        this.context = context;
+    public static void setContext(Context context) {
+        DAO.context = context;
     }
 
-    public  abstract ParseObject create(T obj) throws ParseException;
+    public  abstract void create(final T obj, final IAPIResultListener<T> listener);
 
-    public  abstract  boolean delete(T obj) throws ParseException;
+    public  abstract  void delete(final T obj,final IAPIResultListener<T> listener);
 
-    public  abstract  boolean update(T obj) throws ParseException;
+    public  abstract  void update(final T obj,final IAPIResultListener<T> listener);
 
-    public  abstract  T find(String objId) throws ParseException;
+    public  abstract  void find(String objId,final IAPIResultListener<T> listener);
 }

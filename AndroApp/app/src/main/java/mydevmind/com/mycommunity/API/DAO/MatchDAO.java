@@ -2,13 +2,16 @@ package mydevmind.com.mycommunity.API.DAO;
 
 import android.content.Context;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.model.Community;
 import mydevmind.com.mycommunity.model.Match;
 
@@ -31,62 +34,72 @@ public class MatchDAO extends DAO<Match> {
     }
 
     @Override
-    public ParseObject create(Match obj) throws ParseException {
+    public void create(Match obj,final IAPIResultListener<Match> listener){
         ParseObject community= ParseObject.createWithoutData("Community", obj.getCommunity().getObjectId());
         ParseObject playerFrom= ParseObject.createWithoutData("Player", obj.getPlayerFrom().getObjectId());
         ParseObject playerTo= ParseObject.createWithoutData("Player", obj.getPlayerTo().getObjectId());
-        ParseObject match= new ParseObject("Match");
+        final ParseObject match= new ParseObject("Match");
         match.put("community", community);
         match.put("playerFrom", playerFrom);
         match.put("playerTo", playerTo);
         match.put("scoreFrom", obj.getScoreFrom());
         match.put("scoreTo", obj.getScoreTo());
         match.put("comment", obj.getComment());
-        match.save();
-        match.refresh();
-        return match;
+        match.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                listener.onApiResultListener(parseObjectToMatch(match), e);
+            }
+        });
     }
 
     @Override
-    public boolean delete(Match obj) throws ParseException {
-        return false;
+    public void delete(Match obj,final IAPIResultListener<Match> listener){
     }
 
     @Override
-    public boolean update(Match obj) throws ParseException {
-        return false;
+    public void update(Match obj, IAPIResultListener<Match> listener){
     }
 
     @Override
-    public Match find(String objId) throws ParseException {
+    public void find(String objId, final IAPIResultListener<Match> listener){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Match");
         query.whereEqualTo("objectId", objId);
         query.include("Player");
         query.include("Community");
-        List<ParseObject> result= query.find();
-        if(result.size()==1){
-            ParseObject obj= result.get(0);
-            Match match= parseObjectToMatch(obj);
-            return match;
-        }
-        return null;
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if(parseObjects.size()==1){
+                    ParseObject obj= parseObjects.get(0);
+                    Match match= parseObjectToMatch(obj);
+                    listener.onApiResultListener(match, e);
+                }else {
+                    listener.onApiResultListener(null, e);
+                }
+            }
+        });
     }
 
-    public ArrayList<Match> findByCommunity(Community community) throws ParseException {
-        ArrayList<Match> matches= new ArrayList<Match>();
+    public void findByCommunity(Community community, final IAPIResultListener<ArrayList<Match>> listener){
+        final ArrayList<Match> matches= new ArrayList<Match>();
         ParseObject fetchedCommunity = ParseObject.createWithoutData("Community", community.getObjectId());
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Match");
         query.whereEqualTo("community", fetchedCommunity);
         query.include("Player");
         query.include("Community");
-        List<ParseObject> result= query.find();
-        for(ParseObject obj: result){
-            matches.add(parseObjectToMatch(obj));
-        }
-        return matches;
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                for(ParseObject obj: parseObjects){
+                    matches.add(parseObjectToMatch(obj));
+                }
+                listener.onApiResultListener(matches, e);
+            }
+        });
     }
 
-    private Match parseObjectToMatch(ParseObject obj) throws ParseException {
+    private Match parseObjectToMatch(ParseObject obj){
         Match match= new Match();
         match.setObjectId(obj.getObjectId());
         match.setCreatedAt(obj.getCreatedAt());

@@ -4,6 +4,7 @@ package mydevmind.com.mycommunity.fragment;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -25,8 +26,12 @@ import android.widget.Toast;
 import com.parse.ParseException;
 
 import mydevmind.com.mycommunity.API.CommunityAPIManager;
-import mydevmind.com.mycommunity.API.DAO.PlayerDAO;
+import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.R;
+import mydevmind.com.mycommunity.fragment.Dialog.MatchDialogFragment;
+import mydevmind.com.mycommunity.fragment.Dialog.PlayerDialogFragment;
+import mydevmind.com.mycommunity.model.Match;
+import mydevmind.com.mycommunity.model.Notification;
 import mydevmind.com.mycommunity.model.Player;
 
 /**
@@ -34,7 +39,7 @@ import mydevmind.com.mycommunity.model.Player;
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment implements PlayerDialogFragment.IOnSubmitPlayerListener {
+public class NavigationDrawerFragment extends Fragment implements PlayerDialogFragment.IOnSubmitPlayerListener, MatchDialogFragment.IOnSubmitMatchListener {
 
     /**
      * Remember the position of the selected item.
@@ -65,9 +70,20 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
+
+    private static ProgressDialog spinner;
+
     private PlayerDialogFragment playerDialogFragment;
+    private MatchDialogFragment matchDialogFragment;
+
+    private CommunityAPIManager communityAPIManager;
 
     public NavigationDrawerFragment() {
+    }
+
+
+    public static ProgressDialog getSpinner() {
+        return spinner;
     }
 
     @Override
@@ -84,8 +100,19 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
             mFromSavedInstanceState = true;
         }
 
+        communityAPIManager= CommunityAPIManager.getInstance(getActivity());
+
+        spinner = new ProgressDialog(getActivity());
+        spinner.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        spinner.setTitle("Chargement ...");
+        spinner.setMessage("Patientez, ceci peut prendre quelques secondes");
+        spinner.setCancelable(false);
+
         playerDialogFragment= new PlayerDialogFragment();
         playerDialogFragment.setListener(this);
+
+        matchDialogFragment= new MatchDialogFragment();
+        matchDialogFragment.setListener(this);
 
         // Select either the default item (0) or the last selected item.
         selectItem(mCurrentSelectedPosition);
@@ -93,13 +120,29 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
 
     @Override
     public void onSubmitPlayerListener(Player player) {
-        try {
-            CommunityAPIManager.getInstance(getActivity()).addPlayerInCommunity(player, CommunityFragment.getCurrentCommunity());
-            Toast.makeText(getActivity(), "Joueur ajouté", Toast.LENGTH_SHORT).show();
-            mCallbacks.onNavigationDrawerItemSelected(0);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        spinner.show();
+        communityAPIManager.setNotificationListener(new IAPIResultListener<Notification>() {
+            @Override
+            public void onApiResultListener(Notification obj, ParseException e) {
+                Toast.makeText(getActivity(), "Joueur ajouté", Toast.LENGTH_SHORT).show();
+                spinner.dismiss();
+            }
+        });
+        communityAPIManager.addPlayerInCommunity(player, CommunityFragment.getCurrentCommunity());
+
+    }
+
+    @Override
+    public  void onSubmitMatchListener(Match match){
+        spinner.show();
+        communityAPIManager.setMatchListener(new IAPIResultListener<Match>() {
+            @Override
+            public void onApiResultListener(Match obj, ParseException e) {
+                Toast.makeText(getActivity(), "Match ajouté", Toast.LENGTH_SHORT).show();
+                spinner.dismiss();
+            }
+        });
+        communityAPIManager.getInstance(getActivity()).addMatch(match);
     }
 
     @Override
@@ -271,8 +314,10 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
         }
 
         if (item.getItemId() == R.id.action_add_player) {
-            playerDialogFragment.show(getFragmentManager(), getString(R.id.action_add_player));
+            playerDialogFragment.show(getFragmentManager(), getString(R.string.title_sectionAddPlayer));
             return true;
+        }else if(item.getItemId() == R.id.action_add_match){
+            matchDialogFragment.show(getFragmentManager(), getString(R.string.field_add_match));
         }
 
         return super.onOptionsItemSelected(item);

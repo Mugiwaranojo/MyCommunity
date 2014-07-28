@@ -1,11 +1,12 @@
 package mydevmind.com.mycommunity.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Joan on 23/07/2014.
  */
-public class Inscription {
+public class Inscription implements Serializable {
 
     private String objectId;
     private Player user;

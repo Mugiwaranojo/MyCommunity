@@ -11,18 +11,15 @@ import android.widget.ListView;
 import com.parse.ParseException;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import mydevmind.com.mycommunity.API.DAO.CommunityDAO;
-import mydevmind.com.mycommunity.API.DAO.PlayerDAO;
+import mydevmind.com.mycommunity.API.CommunityAPIManager;
+import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.R;
+import mydevmind.com.mycommunity.fragment.Adapter.InformationAdapter;
 import mydevmind.com.mycommunity.model.Community;
 import mydevmind.com.mycommunity.model.Information;
 import mydevmind.com.mycommunity.model.Match;
-import mydevmind.com.mycommunity.model.Notification;
 import mydevmind.com.mycommunity.model.Player;
 
 /**
@@ -49,42 +46,48 @@ public class CommunityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, null);
-
         Intent intentFromLogin= getActivity().getIntent();
-        try {
-            currentUser = PlayerDAO.getInstance(getActivity()).find(intentFromLogin.getStringExtra("userId"));
-            currentCommunity = currentUser.getCommunities().get(0);
-            currentCommunity= CommunityDAO.getInstance(getActivity()).find(currentCommunity.getObjectId());
-            informations = new ArrayList<Information>();
-            for(Notification n:currentCommunity.getNotifications()){
-                informations.add(n);
-            }
-            for(Match m:currentCommunity.getMatches()){
-                informations.add(m);
-            }
-            Collections.sort(informations, Collections.reverseOrder());
-
-            listViewInformations= (ListView) v.findViewById(R.id.listViewMainInformations);
-            adapter= new InformationAdapter(getActivity(), informations);
-            listViewInformations.setAdapter(adapter);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
+        currentUser = (Player) intentFromLogin.getSerializableExtra("player");
+        currentCommunity = currentUser.getCommunities().get(0);
+        informations = new ArrayList<Information>();
+        listViewInformations= (ListView) v.findViewById(R.id.listViewMainInformations);
+        updateList();
         return v;
     }
 
-    public void updateList() throws ParseException {
-        ArrayList<Information> temp= new ArrayList<Information>();
-        currentCommunity= CommunityDAO.getInstance(getActivity()).find(currentCommunity.getObjectId());
-        for(Notification n:currentCommunity.getNotifications()){
-            temp.add(n);
+    public void updateList(){
+        NavigationDrawerFragment.getSpinner().show();
+        CommunityAPIManager communityAPIManager = CommunityAPIManager.getInstance(getActivity());
+        communityAPIManager.setPlayersListListener(new IAPIResultListener<ArrayList<Player>>() {
+            @Override
+            public void onApiResultListener(ArrayList<Player> obj, ParseException e) {
+                getCurrentCommunity().setPlayers(obj);
+                CommunityAPIManager.getInstance(getActivity()).fetchInformations(currentCommunity);
+            }
+        });
+        communityAPIManager.setInformationsListener(new IAPIResultListener<ArrayList<Information>>() {
+            @Override
+            public void onApiResultListener(ArrayList<Information> obj, ParseException e) {
+                fetchPlayersInMatches();
+                informations= currentCommunity.getInformations();
+                adapter= new InformationAdapter(getActivity(), informations);
+                listViewInformations.setAdapter(adapter);
+                listViewInformations.invalidate();
+                NavigationDrawerFragment.getSpinner().dismiss();
+            }
+        });
+        communityAPIManager.fetchPlayers(currentCommunity);
+    }
+
+    private void fetchPlayersInMatches(){
+        for(Match m: currentCommunity.getMatches()){
+            for(Player p: currentCommunity.getPlayers()){
+                if(m.getPlayerFrom().getObjectId().equals(p.getObjectId())){
+                    m.setPlayerFrom(p);
+                }else if(m.getPlayerTo().getObjectId().equals(p.getObjectId())){
+                    m.setPlayerTo(p);
+                }
+            }
         }
-        for(Match m:currentCommunity.getMatches()){
-            temp.add(m);
-        }
-        Collections.sort(temp);
-        informations= temp;
-        listViewInformations.invalidate();
     }
 }

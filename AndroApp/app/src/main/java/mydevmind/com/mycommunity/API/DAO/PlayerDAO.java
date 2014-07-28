@@ -1,20 +1,18 @@
 package mydevmind.com.mycommunity.API.DAO;
 
 import android.content.Context;
-import android.util.Log;
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import mydevmind.com.mycommunity.API.OnApiResultListener;
+import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.model.Community;
 import mydevmind.com.mycommunity.model.Inscription;
 import mydevmind.com.mycommunity.model.Player;
@@ -38,58 +36,95 @@ public class PlayerDAO extends DAO<Player> {
     }
 
     @Override
-    public ParseObject create(Player obj) throws ParseException {
-        ParseObject player=  new ParseObject("Player");
+    public void create(Player obj, final IAPIResultListener<Player> listener){
+        final ParseObject player=  new ParseObject("Player");
         player.put("name", obj.getName());
         player.put("password", obj.getPassword());
-        player.save();
-        player.refresh();
-        return player;
+        player.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                listener.onApiResultListener(parseObjectToPlayer(player), e);
+            }
+        });
     }
 
     @Override
-    public boolean delete(Player obj) throws ParseException {
+    public void delete(Player obj, final  IAPIResultListener<Player> listener){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
         query.whereEqualTo("objectId", obj.getObjectId());
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if(parseObjects.size()==1){
+                    final ParseObject player= parseObjects.get(0);
+                    player.deleteInBackground(new DeleteCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            listener.onApiResultListener(parseObjectToPlayer(player), e);
+                        }
+                    });
+                }else{
+                    listener.onApiResultListener(null, e);
+                }
+            }
+        });
 
-        List<ParseObject> result= query.find();
-        if(result.size()==1){
-            ParseObject player= result.get(0);
-            player.delete();
-            return true;
-        }
-        return false;
     }
 
     @Override
-    public boolean update(Player obj) throws ParseException {
+    public void update(final Player obj, final IAPIResultListener<Player> listener) {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
         query.whereEqualTo("objectId", obj.getObjectId());
-
-        List<ParseObject> result= query.find();
-        if(result.size()==1){
-            ParseObject player= result.get(0);
-            player.put("name", obj.getName());
-            player.put("password", obj.getPassword());
-            return true;
-        }
-        return false;
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if(parseObjects.size()==1){
+                    final ParseObject player= parseObjects.get(0);
+                    player.put("name", obj.getName());
+                    player.put("password", obj.getPassword());
+                    player.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            listener.onApiResultListener(parseObjectToPlayer(player), e);
+                        }
+                    });
+                }else{
+                    listener.onApiResultListener(null, e);
+                }
+            }
+        });
     }
 
     @Override
-    public Player find(String objId) throws ParseException {
+    public void find(String objId, final IAPIResultListener<Player> listener){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
         query.whereEqualTo("objectId", objId);
-        List<ParseObject> result= query.find();
-        if(result.size()==1){
-            ParseObject obj= result.get(0);
-            Player player= parseObjectToPlayer(obj);
-            return player;
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if(parseObjects.size()==1){
+                    listener.onApiResultListener(parseObjectToPlayer(parseObjects.get(0)), e);
+                }else{
+                    listener.onApiResultListener(null, e);
+                }
+            }
+        });
+    }
+
+    public Player find(String objId){
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
+        query.whereEqualTo("objectId", objId);
+        try {
+            List<ParseObject> parseObjects = query.find();
+            if(parseObjects.size()==1){
+               return  parseObjectToPlayer(parseObjects.get(0));
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
         return null;
     }
-
-    public void findByUserPassword(String login, String password, final OnApiResultListener listener){
+    public void findByUserPassword(String login, String password, final IAPIResultListener<Player> listener){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
         query.whereEqualTo("name", login);
         query.whereEqualTo("password", password);
@@ -97,27 +132,35 @@ public class PlayerDAO extends DAO<Player> {
             @Override
             public void done(List<ParseObject> userList, ParseException e) {
                 if(e==null){
-                    listener.onApiResult(userList, null);
+                    if(userList.size()==1){
+                        listener.onApiResultListener(parseObjectToPlayer(userList.get(0)), null);
+                    }else {
+                        listener.onApiResultListener(null, null);
+                    }
                 }else{
-                    listener.onApiResult(null, e);
+                    listener.onApiResultListener(null, e);
                 }
             }
         });
     }
 
-    public static Player parseObjectToPlayer(ParseObject obj) throws ParseException {
+    public static Player parseObjectToPlayer(ParseObject obj){
         Player player= new Player();
         player.setObjectId(obj.getObjectId());
-        player.setName(obj.getString("name"));
-        player.setPassword(obj.getString("password"));
-        player.setCreatedAt(obj.getCreatedAt());
-        player.setUpdatedAt(obj.getUpdatedAt());
-        ArrayList<Inscription> inscriptions= InscriptionDAO.getInstance(getContext()).findByUser(player);
-        ArrayList<Community> communities= new ArrayList<Community>();
-        for(Inscription inscription: inscriptions){
-            communities.add(inscription.getCommunity());
+        try {
+            player.setName(obj.getString("name"));
+            player.setPassword(obj.getString("password"));
+            player.setCreatedAt(obj.getCreatedAt());
+            player.setUpdatedAt(obj.getUpdatedAt());
+            ArrayList<Inscription> inscriptions = InscriptionDAO.getInstance(getContext()).findByUser(player);
+            ArrayList<Community> communities = new ArrayList<Community>();
+            for (Inscription inscription : inscriptions) {
+                communities.add(inscription.getCommunity());
+            }
+            player.setCommunities(communities);
+        }catch (IllegalStateException e){
+            e.printStackTrace();
         }
-        player.setCommunities(communities);
         return player;
     }
 }

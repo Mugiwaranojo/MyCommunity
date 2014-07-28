@@ -7,7 +7,7 @@ import java.util.Date;
  */
 public interface Information extends Comparable {
 
-    public Date getCreatedAt();
+    public Date getDate();
     public String getTitle();
     public String getText();
 
