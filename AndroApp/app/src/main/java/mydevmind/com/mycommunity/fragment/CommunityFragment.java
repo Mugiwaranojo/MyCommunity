@@ -60,6 +60,14 @@ public class CommunityFragment extends Fragment implements IAPIResultListener<Ar
         return v;
     }
 
+    public void updateListView(){
+        informations= currentCommunity.getInformations();
+        fetchPlayersInMatches();
+        adapter= new InformationAdapter(getActivity(), informations);
+        listViewInformations.setAdapter(adapter);
+        listViewInformations.invalidate();
+    }
+
     public void updateInfos(){
          NavigationDrawerFragment.getSpinner().show();
          manager.setPlayersListListener(new IAPIResultListener<ArrayList<Player>>() {
@@ -73,10 +81,7 @@ public class CommunityFragment extends Fragment implements IAPIResultListener<Ar
             @Override
             public void onApiResultListener(ArrayList<Information> obj, ParseException e) {
                 fetchPlayersInMatches();
-                informations= currentCommunity.getInformations();
-                adapter= new InformationAdapter(getActivity(), informations);
-                listViewInformations.setAdapter(adapter);
-                listViewInformations.invalidate();
+                updateListView();
                 NavigationDrawerFragment.getSpinner().dismiss();
              }
         });

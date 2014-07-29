@@ -91,6 +91,7 @@ public class CommunityAPIManager {
                                         notification.setTitle("Bienvenue dans MyCommunity");
                                         notification.setText("La communauté permetra à vous et vos amis d'enregistrer vos score FIFA, pour qu'il n'y ait plus de discussion sur les mémoires selective!\n" +
                                                 "Pour commencer veuillez ajouter les différents membres de votre communauté et tranmettez leurs, leurs accès");
+                                        community.getNotifications().add(notification);
                                         NotificationDAO.getInstance(myContext).create(notification, notificationListener);
                                     }
                                 });
@@ -102,17 +103,18 @@ public class CommunityAPIManager {
         });
     }
 
-    public void addPlayerInCommunity(Player player, Community community){
+    public void addPlayerInCommunity(Player player, final Community community){
         PlayerDAO.getInstance(myContext).create(player, new IAPIResultListener<Player>() {
             @Override
             public void onApiResultListener(final Player obj, ParseException e) {
                 Inscription inscription = new Inscription();
                 inscription.setUser(obj);
-                inscription.setCommunity(CommunityFragment.getCurrentCommunity());
+                inscription.setCommunity(community);
                 InscriptionDAO.getInstance(myContext).create(inscription, new IAPIResultListener<Inscription>() {
                     @Override
                     public void onApiResultListener(Inscription objInscription, ParseException e) {
                         if (objInscription != null) {
+                            community.getPlayers().add(obj);
                             Notification notification= new Notification();
                             notification.setCommunity(objInscription.getCommunity());
                             notification.setTitle(obj.getName()+" a rejoint vôtre communauté");

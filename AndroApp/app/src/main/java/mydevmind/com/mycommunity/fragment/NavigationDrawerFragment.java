@@ -30,9 +30,11 @@ import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.R;
 import mydevmind.com.mycommunity.fragment.Dialog.MatchDialogFragment;
 import mydevmind.com.mycommunity.fragment.Dialog.PlayerDialogFragment;
+import mydevmind.com.mycommunity.model.Community;
 import mydevmind.com.mycommunity.model.Match;
 import mydevmind.com.mycommunity.model.Notification;
 import mydevmind.com.mycommunity.model.Player;
+import mydevmind.com.mycommunity.model.Statistic;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -40,6 +42,15 @@ import mydevmind.com.mycommunity.model.Player;
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
 public class NavigationDrawerFragment extends Fragment implements PlayerDialogFragment.IOnSubmitPlayerListener, MatchDialogFragment.IOnSubmitMatchListener {
+
+    public final static Integer ACTION_ADD_PLAYER = 2012;
+    public final static Integer ACTION_ADD_MATCH = 2012;
+
+    private IFragmentActionListener actionLister;
+
+    public void setActionLister(IFragmentActionListener actionLister) {
+        this.actionLister = actionLister;
+    }
 
     /**
      * Remember the position of the selected item.
@@ -125,7 +136,9 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
             @Override
             public void onApiResultListener(Notification obj, ParseException e) {
                 Toast.makeText(getActivity(), "Joueur ajouté", Toast.LENGTH_SHORT).show();
+                CommunityFragment.getCurrentCommunity().getNotifications().add(obj);
                 spinner.dismiss();
+                actionLister.onFragmentAction(ACTION_ADD_PLAYER, obj);
             }
         });
         communityAPIManager.addPlayerInCommunity(player, CommunityFragment.getCurrentCommunity());
@@ -139,7 +152,9 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
             @Override
             public void onApiResultListener(Match obj, ParseException e) {
                 Toast.makeText(getActivity(), "Match ajouté", Toast.LENGTH_SHORT).show();
+                CommunityFragment.getCurrentCommunity().getMatches().add(obj);
                 spinner.dismiss();
+                actionLister.onFragmentAction(ACTION_ADD_MATCH, obj);
             }
         });
         communityAPIManager.addMatch(match);

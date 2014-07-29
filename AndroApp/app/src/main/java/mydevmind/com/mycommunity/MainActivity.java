@@ -21,7 +21,7 @@ import mydevmind.com.mycommunity.fragment.NavigationDrawerFragment;
 
 
 public class MainActivity extends Activity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, IFragmentActionListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -41,6 +41,7 @@ public class MainActivity extends Activity
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavigationDrawerFragment.setActionLister(this);
 
         communityFragment= new CommunityFragment();
         getFragmentManager().beginTransaction()
@@ -99,5 +100,14 @@ public class MainActivity extends Activity
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentAction(Integer action, Object obj) {
+        switch (action){
+            default:
+                communityFragment.updateListView();
+                break;
+        }
     }
 }
