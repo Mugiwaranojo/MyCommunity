@@ -58,7 +58,7 @@ public class LoginFragment extends Fragment implements IAPIResultListener<Player
         spinner.setMessage("Patientez, ceci peut prendre quelques secondes");
         spinner.setCancelable(false);
 
-        apiManager = CommunityAPIManager.getInstance(getActivity());
+        apiManager = new CommunityAPIManager(getActivity());
         apiManager.setPlayerListener(this);
 
         loginButton.setOnClickListener(new View.OnClickListener() {

@@ -114,4 +114,24 @@ public class Match implements Information, Serializable {
         }
         return 0;
     }
+
+    public Player getWinner(){
+        if(scoreFrom>scoreTo){
+            return playerFrom;
+        }else if(scoreTo>scoreFrom){
+            return playerTo;
+        }else {
+            return null;
+        }
+    }
+
+    public Player getLoser(){
+        if(scoreFrom<scoreTo){
+            return playerFrom;
+        }else if(scoreTo<scoreFrom){
+            return playerTo;
+        }else {
+            return null;
+        }
+    }
 }

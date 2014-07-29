@@ -80,24 +80,22 @@ public class InscriptionDAO extends DAO<Inscription> {
         });
     }
 
-    public ArrayList<Inscription> findByUser(Player player){
-        ArrayList<Inscription> resultList= new ArrayList<Inscription>();
+    public void findByUser(Player player, final IAPIResultListener<ArrayList<Inscription>> listener){
+        final ArrayList<Inscription> resultList= new ArrayList<Inscription>();
         ParseObject fetchedPlayer= ParseObject.createWithoutData("Player", player.getObjectId());
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Inscription");
         query.whereEqualTo("user", fetchedPlayer);
         query.include("Player");
         query.include("Community");
-        List<ParseObject> result= null;
-        try {
-            result = query.find();
-            for(ParseObject obj: result){
-                resultList.add(parseObjectToInscription(obj));
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                for(ParseObject obj: parseObjects){
+                    resultList.add(parseObjectToInscription(obj));
+                }
+                listener.onApiResultListener(resultList, e);
             }
-            return resultList;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
+        });
     }
 
     public void findByCommunity(Community community, final IAPIResultListener<ArrayList<Inscription

@@ -25,12 +25,13 @@ import mydevmind.com.mycommunity.model.Player;
 /**
  * Created by Joan on 23/07/2014.
  */
-public class CommunityFragment extends Fragment {
+public class CommunityFragment extends Fragment implements IAPIResultListener<ArrayList<Community>> {
 
     private ListView listViewInformations;
-
     private List<Information> informations;
     private InformationAdapter adapter;
+
+    private CommunityAPIManager manager;
 
     private static Player currentUser;
     private static Community currentCommunity;
@@ -46,26 +47,29 @@ public class CommunityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, null);
+
         Intent intentFromLogin= getActivity().getIntent();
         currentUser = (Player) intentFromLogin.getSerializableExtra("player");
-        currentCommunity = currentUser.getCommunities().get(0);
+
         informations = new ArrayList<Information>();
         listViewInformations= (ListView) v.findViewById(R.id.listViewMainInformations);
-        updateList();
+
+        manager= new CommunityAPIManager(getActivity());
+        manager.setCommunityListListener(this);
+        manager.fetchCommunities(currentUser);
         return v;
     }
 
-    public void updateList(){
-        NavigationDrawerFragment.getSpinner().show();
-        CommunityAPIManager communityAPIManager = CommunityAPIManager.getInstance(getActivity());
-        communityAPIManager.setPlayersListListener(new IAPIResultListener<ArrayList<Player>>() {
-            @Override
-            public void onApiResultListener(ArrayList<Player> obj, ParseException e) {
-                getCurrentCommunity().setPlayers(obj);
-                CommunityAPIManager.getInstance(getActivity()).fetchInformations(currentCommunity);
-            }
-        });
-        communityAPIManager.setInformationsListener(new IAPIResultListener<ArrayList<Information>>() {
+    public void updateInfos(){
+         NavigationDrawerFragment.getSpinner().show();
+         manager.setPlayersListListener(new IAPIResultListener<ArrayList<Player>>() {
+                    @Override
+                    public void onApiResultListener(ArrayList<Player> obj, ParseException e) {
+                        getCurrentCommunity().setPlayers(obj);
+                        manager.fetchInformations(currentCommunity);
+                    }
+                });
+         manager.setInformationsListener(new IAPIResultListener<ArrayList<Information>>() {
             @Override
             public void onApiResultListener(ArrayList<Information> obj, ParseException e) {
                 fetchPlayersInMatches();
@@ -74,9 +78,9 @@ public class CommunityFragment extends Fragment {
                 listViewInformations.setAdapter(adapter);
                 listViewInformations.invalidate();
                 NavigationDrawerFragment.getSpinner().dismiss();
-            }
+             }
         });
-        communityAPIManager.fetchPlayers(currentCommunity);
+         manager.fetchPlayers(currentCommunity);
     }
 
     private void fetchPlayersInMatches(){
@@ -89,5 +93,11 @@ public class CommunityFragment extends Fragment {
                 }
             }
         }
+    }
+
+    @Override
+    public void onApiResultListener(ArrayList<Community> obj, ParseException e) {
+        currentCommunity= obj.get(0);
+        updateInfos();
     }
 }

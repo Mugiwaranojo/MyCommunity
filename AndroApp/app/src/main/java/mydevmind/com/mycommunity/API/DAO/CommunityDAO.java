@@ -111,14 +111,10 @@ public class CommunityDAO extends DAO<Community> {
     public static Community parseObjectToCommunity(ParseObject obj){
         Community community= new Community();
         community.setObjectId(obj.getObjectId());
-        try {
-            community.setName(obj.getString("name"));
-            community.setPassword(obj.getString("password"));
-            community.setCreatedAt(obj.getCreatedAt());
-            community.setUpdatedAt(obj.getUpdatedAt());
-        }catch (IllegalStateException e){
-            e.printStackTrace();
-        }
+        community.setName(obj.getString("name"));
+        community.setPassword(obj.getString("password"));
+        community.setCreatedAt(obj.getCreatedAt());
+        community.setUpdatedAt(obj.getUpdatedAt());
         return community;
     }
 }

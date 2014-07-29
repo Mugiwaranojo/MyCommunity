@@ -100,7 +100,7 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
             mFromSavedInstanceState = true;
         }
 
-        communityAPIManager= CommunityAPIManager.getInstance(getActivity());
+        communityAPIManager= new CommunityAPIManager(getActivity());
 
         spinner = new ProgressDialog(getActivity());
         spinner.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -142,7 +142,7 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
                 spinner.dismiss();
             }
         });
-        communityAPIManager.getInstance(getActivity()).addMatch(match);
+        communityAPIManager.addMatch(match);
     }
 
     @Override

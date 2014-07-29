@@ -82,8 +82,9 @@ public class InscriptionFragment extends Fragment {
                  if(validForm()){
                     spinner.show();
                     final Player player= new Player(userName.getText().toString(), userPassword.getText().toString());
-                    Community community= new Community(communityName.getText().toString(), communityPassword.getText().toString());
-                    CommunityAPIManager.setPlayerListener(new IAPIResultListener<Player>() {
+                     Community community= new Community(communityName.getText().toString(), communityPassword.getText().toString());
+                     final CommunityAPIManager apiManager= new CommunityAPIManager(getActivity());
+                     apiManager.setPlayerListener(new IAPIResultListener<Player>() {
                         @Override
                         public void onApiResultListener(Player obj, ParseException e) {
                             spinner.dismiss();
@@ -92,13 +93,13 @@ public class InscriptionFragment extends Fragment {
                             startActivity(connectionIntent);
                         }
                     });
-                    CommunityAPIManager.setNotificationListener(new IAPIResultListener<Notification>() {
+                     apiManager.setNotificationListener(new IAPIResultListener<Notification>() {
                         @Override
                         public void onApiResultListener(Notification obj, ParseException e) {
-                            CommunityAPIManager.getInstance(getActivity()).connection(player.getName(), player.getPassword());
+                            apiManager.connection(player.getName(), player.getPassword());
                         }
                     });
-                    CommunityAPIManager.getInstance(getActivity()).inscriptionPlayerAndCommunity(player, community);
+                    apiManager.inscriptionPlayerAndCommunity(player, community);
                 }
             }
         });

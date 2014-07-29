@@ -26,26 +26,25 @@ import mydevmind.com.mycommunity.model.Player;
 public class CommunityAPIManager {
 
     private static IAPIResultListener<Player> playerListener;
+    private static IAPIResultListener<ArrayList<Community>> communityListListener;
     private static IAPIResultListener<Inscription> inscriptionListener;
     private static IAPIResultListener<Notification> notificationListener;
     private static IAPIResultListener<ArrayList<Information>> informationsListener;
     private static IAPIResultListener<Match> matchListener;
     private static IAPIResultListener<ArrayList<Player>> playersListListener;
 
+    private Context myContext;
 
-    private static CommunityAPIManager instance;
-    private static Context myContext;
-
-    public static CommunityAPIManager getInstance(Context context) {
-        if (instance == null) {
-            instance = new CommunityAPIManager();
-            myContext = context;
-        }
-        return instance;
+    public CommunityAPIManager(Context context) {
+        myContext = context;
     }
 
     public static void setPlayerListener(IAPIResultListener<Player> playerListener) {
         CommunityAPIManager.playerListener = playerListener;
+    }
+
+    public static void setCommunityListListener(IAPIResultListener<ArrayList<Community>> communityListListener) {
+        CommunityAPIManager.communityListListener = communityListListener;
     }
 
     public static void setInscriptionListener(IAPIResultListener<Inscription> inscriptionListener) {
@@ -124,6 +123,24 @@ public class CommunityAPIManager {
                 });
             }
         });
+    }
+
+    public void fetchCommunities(final Player player){
+        final ArrayList<Community> communitiesList= new ArrayList<Community>();
+        InscriptionDAO.getInstance(myContext).findByUser(player, new IAPIResultListener<ArrayList<Inscription>>() {
+            @Override
+            public void onApiResultListener(ArrayList<Inscription> inscriptionArrayList, ParseException e) {
+               Community tempCommunity= inscriptionArrayList.get(0).getCommunity();
+               CommunityDAO.getInstance(myContext).find(tempCommunity.getObjectId(), new IAPIResultListener<Community>() {
+                   @Override
+                   public void onApiResultListener(Community obj, ParseException e) {
+                       communitiesList.add(obj);
+                       communityListListener.onApiResultListener(communitiesList, e);
+                   }
+               });
+            }
+        });
+
     }
 
     public void fetchInformations(final Community community){

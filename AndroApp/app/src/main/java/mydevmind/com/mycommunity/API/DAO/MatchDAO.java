@@ -14,6 +14,7 @@ import java.util.List;
 import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.model.Community;
 import mydevmind.com.mycommunity.model.Match;
+import mydevmind.com.mycommunity.model.Player;
 
 /**
  * Created by Joan on 23/07/2014.
@@ -104,9 +105,9 @@ public class MatchDAO extends DAO<Match> {
         match.setObjectId(obj.getObjectId());
         match.setCreatedAt(obj.getCreatedAt());
         match.setUpdatedAt(obj.getUpdatedAt());
-        match.setCommunity(CommunityDAO.parseObjectToCommunity(obj.getParseObject("community")));
-        match.setPlayerFrom(PlayerDAO.parseObjectToPlayer(obj.getParseObject("playerFrom")));
-        match.setPlayerTo(PlayerDAO.parseObjectToPlayer(obj.getParseObject("playerTo")));
+        match.setCommunity(new Community(obj.getParseObject("community").getObjectId()));
+        match.setPlayerFrom(new Player(obj.getParseObject("playerFrom").getObjectId()));
+        match.setPlayerTo(new Player(obj.getParseObject("playerTo").getObjectId()));
         match.setScoreFrom(obj.getInt("scoreFrom"));
         match.setScoreTo(obj.getInt("scoreTo"));
         match.setComment(obj.getString("comment"));

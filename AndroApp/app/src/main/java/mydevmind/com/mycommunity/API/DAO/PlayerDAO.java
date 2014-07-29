@@ -147,20 +147,10 @@ public class PlayerDAO extends DAO<Player> {
     public static Player parseObjectToPlayer(ParseObject obj){
         Player player= new Player();
         player.setObjectId(obj.getObjectId());
-        try {
-            player.setName(obj.getString("name"));
-            player.setPassword(obj.getString("password"));
-            player.setCreatedAt(obj.getCreatedAt());
-            player.setUpdatedAt(obj.getUpdatedAt());
-            ArrayList<Inscription> inscriptions = InscriptionDAO.getInstance(getContext()).findByUser(player);
-            ArrayList<Community> communities = new ArrayList<Community>();
-            for (Inscription inscription : inscriptions) {
-                communities.add(inscription.getCommunity());
-            }
-            player.setCommunities(communities);
-        }catch (IllegalStateException e){
-            e.printStackTrace();
-        }
+        player.setName(obj.getString("name"));
+        player.setPassword(obj.getString("password"));
+        player.setCreatedAt(obj.getCreatedAt());
+        player.setUpdatedAt(obj.getUpdatedAt());
         return player;
     }
 }
