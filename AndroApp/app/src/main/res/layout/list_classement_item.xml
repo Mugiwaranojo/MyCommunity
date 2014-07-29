@@ -12,7 +12,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Joueur"
         android:layout_weight="25"
-        android:id="@+id/textViewClassementHeadPlayer" />
+        android:id="@+id/textViewClassementItemPlayer" />
 
     <TextView
         android:layout_width="0dp"

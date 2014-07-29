@@ -15,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 
 import com.parse.ParseException;
 
+import mydevmind.com.mycommunity.fragment.ClassementFragment;
 import mydevmind.com.mycommunity.fragment.CommunityFragment;
 import mydevmind.com.mycommunity.fragment.IFragmentActionListener;
 import mydevmind.com.mycommunity.fragment.NavigationDrawerFragment;
@@ -28,6 +29,7 @@ public class MainActivity extends Activity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private CommunityFragment communityFragment;
+    private ClassementFragment classementFragment;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -62,9 +64,31 @@ public class MainActivity extends Activity
         FragmentManager fragmentManager = getFragmentManager();
         if (findViewById(R.id.listViewMainInformations) != null){
             mTitle = CommunityFragment.getCurrentCommunity().getName();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, communityFragment)
-                        .commit();
+            if(position==0) {
+               if(classementFragment==null){
+                   fragmentManager.beginTransaction()
+                           .show(communityFragment)
+                           .commit();
+               }else {
+                   fragmentManager.beginTransaction()
+                           .show(communityFragment)
+                           .hide(classementFragment)
+                           .commit();
+               }
+            }else if(position==1){
+                if(classementFragment==null){
+                    classementFragment= new ClassementFragment();
+                    fragmentManager.beginTransaction()
+                            .add(R.id.container, classementFragment)
+                            .hide(communityFragment)
+                            .commit();
+                }else{
+                    fragmentManager.beginTransaction()
+                            .show(classementFragment)
+                            .hide(communityFragment)
+                            .commit();
+                }
+            }
         }
     }
 
@@ -104,10 +128,10 @@ public class MainActivity extends Activity
 
     @Override
     public void onFragmentAction(Integer action, Object obj) {
-        switch (action){
-            default:
-                communityFragment.updateListView();
-                break;
+        if(action.equals(NavigationDrawerFragment.ACTION_ADD_MATCH)&& classementFragment!=null){
+            classementFragment.updateListView();
         }
+        communityFragment.updateListView();
+
     }
 }

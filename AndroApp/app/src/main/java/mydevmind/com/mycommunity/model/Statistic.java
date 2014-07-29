@@ -8,8 +8,17 @@ public class Statistic {
     private Player player;
     private Integer play=0, won=0, lose=0,draw=0, goalDone=0, goalReceive=0;
 
+
     public Statistic(Player player){
         this.player=player;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public Integer getPlay() {
@@ -60,6 +69,9 @@ public class Statistic {
         this.goalReceive = goalReceive;
     }
 
+    public Integer getPoints(){
+        return getWon()*3 + getDraw();
+    }
     public static Statistic getPlayerStatistic(Player p, Community community){
         Statistic statistic= new Statistic(p);
         Integer play=0, won=0, lose=0,draw=0, goalDone=0, goalReceive=0;
