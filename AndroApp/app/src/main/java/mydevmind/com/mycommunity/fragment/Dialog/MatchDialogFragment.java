@@ -57,11 +57,12 @@ public class MatchDialogFragment extends DialogFragment{
         dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         dialog.setContentView(R.layout.dialog_add_match);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.background_blue);
         dialog.show();
 
         selectPlayerFrom = (Spinner) dialog.findViewById(R.id.spinnerSelectPlayerFrom);
         selectPlayerTo = (Spinner) dialog.findViewById(R.id.spinnerSelectPlayerTo);
-        adapter = new PlayerAdapter(getActivity(), CommunityFragment.getCurrentCommunity().getPlayers());
+        adapter = new PlayerAdapter(getActivity(), CommunityAPIManager.getInstance(getActivity()).getCurrentCommunity().getPlayers());
         selectPlayerFrom.setAdapter(adapter);
         selectPlayerTo.setAdapter(adapter);
 
@@ -80,7 +81,7 @@ public class MatchDialogFragment extends DialogFragment{
                     match.setScoreFrom(Integer.parseInt(editScorePlayerFrom.getText().toString()));
                     match.setScoreTo(Integer.parseInt(editScorePlayerTo.getText().toString()));
                     match.setComment(editComment.getText().toString());
-                    match.setCommunity(CommunityFragment.getCurrentCommunity());
+                    match.setCommunity(CommunityAPIManager.getInstance(getActivity()).getCurrentCommunity());
                     dismiss();
                     listener.onSubmitMatchListener(match);
                 }

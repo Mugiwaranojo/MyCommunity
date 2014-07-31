@@ -15,6 +15,7 @@ import java.util.List;
 
 import mydevmind.com.mycommunity.API.CommunityAPIManager;
 import mydevmind.com.mycommunity.API.IAPIResultListener;
+import mydevmind.com.mycommunity.MainActivity;
 import mydevmind.com.mycommunity.R;
 import mydevmind.com.mycommunity.fragment.Adapter.InformationAdapter;
 import mydevmind.com.mycommunity.model.Community;
@@ -25,7 +26,7 @@ import mydevmind.com.mycommunity.model.Player;
 /**
  * Created by Joan on 23/07/2014.
  */
-public class CommunityFragment extends Fragment implements IAPIResultListener<ArrayList<Community>> {
+public class CommunityFragment extends Fragment{
 
     private ListView listViewInformations;
     private List<Information> informations;
@@ -33,36 +34,24 @@ public class CommunityFragment extends Fragment implements IAPIResultListener<Ar
 
     private CommunityAPIManager manager;
 
-    private static Player currentUser;
-    private static Community currentCommunity;
-
-    public static Community getCurrentCommunity() {
-        return currentCommunity;
-    }
-
-    public static Player getCurrentUser() {
-        return currentUser;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, null);
-
         Intent intentFromLogin= getActivity().getIntent();
-        currentUser = (Player) intentFromLogin.getSerializableExtra("player");
-
         informations = new ArrayList<Information>();
         listViewInformations= (ListView) v.findViewById(R.id.listViewMainInformations);
 
-        manager= new CommunityAPIManager(getActivity());
-        manager.setCommunityListListener(this);
-        manager.fetchCommunities(currentUser);
+        manager= CommunityAPIManager.getInstance(getActivity());
+        manager.setCurentPlayer((Player) intentFromLogin.getSerializableExtra("player"));
+        manager.setCurrentCommunity(manager.getCurentPlayer().getCommunities().get(0));
+        MainActivity.setmTitle(manager.getCurrentCommunity().getName());
+        updateInfos();
         return v;
     }
 
     public void updateListView(){
-        informations= currentCommunity.getInformations();
-        fetchPlayersInMatches();
+        informations= manager.getCurrentCommunity().getInformations();
         adapter= new InformationAdapter(getActivity(), informations);
         listViewInformations.setAdapter(adapter);
         listViewInformations.invalidate();
@@ -70,39 +59,25 @@ public class CommunityFragment extends Fragment implements IAPIResultListener<Ar
 
     public void updateInfos(){
          NavigationDrawerFragment.getSpinner().show();
-         manager.setPlayersListListener(new IAPIResultListener<ArrayList<Player>>() {
-                    @Override
-                    public void onApiResultListener(ArrayList<Player> obj, ParseException e) {
-                        getCurrentCommunity().setPlayers(obj);
-                        manager.fetchInformations(currentCommunity);
-                    }
-                });
          manager.setInformationsListener(new IAPIResultListener<ArrayList<Information>>() {
-            @Override
-            public void onApiResultListener(ArrayList<Information> obj, ParseException e) {
-                fetchPlayersInMatches();
-                updateListView();
-                NavigationDrawerFragment.getSpinner().dismiss();
+             @Override
+             public void onApiResultListener(ArrayList<Information> obj, ParseException e) {
+                 updateListView();
+                 NavigationDrawerFragment.getSpinner().dismiss();
+                 updatePlayer();
              }
-        });
-         manager.fetchPlayers(currentCommunity);
+         });
+        manager.fetchInformations();
     }
 
-    private void fetchPlayersInMatches(){
-        for(Match m: currentCommunity.getMatches()){
-            for(Player p: currentCommunity.getPlayers()){
-                if(m.getPlayerFrom().getObjectId().equals(p.getObjectId())){
-                    m.setPlayerFrom(p);
-                }else if(m.getPlayerTo().getObjectId().equals(p.getObjectId())){
-                    m.setPlayerTo(p);
-                }
+    public void updatePlayer(){
+        NavigationDrawerFragment.getSpinner().show();
+        manager.setPlayersListListener(new IAPIResultListener<ArrayList<Player>>() {
+            @Override
+            public void onApiResultListener(ArrayList<Player> obj, ParseException e) {
+                NavigationDrawerFragment.getSpinner().dismiss();
             }
-        }
-    }
-
-    @Override
-    public void onApiResultListener(ArrayList<Community> obj, ParseException e) {
-        currentCommunity= obj.get(0);
-        updateInfos();
+        });
+        manager.fetchPlayers();
     }
 }

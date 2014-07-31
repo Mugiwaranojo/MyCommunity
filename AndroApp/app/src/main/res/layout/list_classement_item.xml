@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Joueur"
+        android:textColor="@android:color/holo_blue_light"
         android:layout_weight="25"
         android:id="@+id/textViewClassementItemPlayer" />
 

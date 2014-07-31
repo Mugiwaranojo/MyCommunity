@@ -2,14 +2,11 @@ package mydevmind.com.mycommunity.API.DAO;
 
 import android.content.Context;
 
-import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +19,17 @@ import mydevmind.com.mycommunity.model.Player;
 /**
  * Created by Joan on 23/07/2014.
  */
-public class InscriptionDAO extends DAO<Inscription> {
+public class InscriptionDAO implements IDAO<Inscription> {
 
     private static InscriptionDAO instance;
 
-    private InscriptionDAO(Context context) {
-        super(context);
+    private InscriptionDAO() {
+
     }
 
-    public static InscriptionDAO getInstance(Context context) {
+    public static InscriptionDAO getInstance() {
         if(instance==null){
-            instance = new InscriptionDAO(context);
+            instance = new InscriptionDAO();
         }
         return instance;
     }
@@ -47,7 +44,11 @@ public class InscriptionDAO extends DAO<Inscription> {
         inscription.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                listener.onApiResultListener(parseObjectToInscription(inscription), e);
+                try {
+                    listener.onApiResultListener(parseObjectToInscription(inscription), e);
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
     }
@@ -72,7 +73,11 @@ public class InscriptionDAO extends DAO<Inscription> {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
                 if(parseObjects.size()==1){
-                    listener.onApiResultListener(parseObjectToInscription(parseObjects.get(0)), e);
+                    try {
+                        listener.onApiResultListener(parseObjectToInscription(parseObjects.get(0)), e);
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
                 }else {
                     listener.onApiResultListener(null, e);
                 }
@@ -85,13 +90,16 @@ public class InscriptionDAO extends DAO<Inscription> {
         ParseObject fetchedPlayer= ParseObject.createWithoutData("Player", player.getObjectId());
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Inscription");
         query.whereEqualTo("user", fetchedPlayer);
-        query.include("Player");
         query.include("Community");
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
                 for(ParseObject obj: parseObjects){
-                    resultList.add(parseObjectToInscription(obj));
+                    try {
+                        resultList.add(parseObjectToInscriptionCommunity(obj));
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
                 }
                 listener.onApiResultListener(resultList, e);
             }
@@ -105,25 +113,40 @@ public class InscriptionDAO extends DAO<Inscription> {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Inscription");
         query.whereEqualTo("community", fetchedCommunity);
         query.include("Player");
-        query.include("Community");
         query.findInBackground(new FindCallback<ParseObject>() {
            @Override
            public void done(List<ParseObject> parseObjects, ParseException e) {
                for(ParseObject obj: parseObjects){
-                   resultList.add(parseObjectToInscription(obj));
+                   try {
+                       resultList.add(parseObjectToInscriptionUser(obj));
+                   } catch (ParseException e1) {
+                       e1.printStackTrace();
+                   }
                }
                listener.onApiResultListener(resultList, e);
            }
         });
     }
 
-    public static Inscription parseObjectToInscription(ParseObject obj){
+    public static Inscription parseObjectToInscription(ParseObject obj) throws ParseException {
         Inscription inscription= new Inscription();
         inscription.setObjectId(obj.getObjectId());
         inscription.setCreatedAt(obj.getCreatedAt());
         inscription.setUpdatedAt(obj.getUpdatedAt());
-        inscription.setUser(new Player(obj.getParseObject("user").getObjectId()));
         inscription.setCommunity(new Community(obj.getParseObject("community").getObjectId()));
+        inscription.setUser(new Player(obj.getParseObject("user").getObjectId()));
         return inscription;
     }
+
+    public static Inscription parseObjectToInscriptionCommunity(ParseObject obj) throws ParseException {
+        Inscription inscription= parseObjectToInscription(obj);
+        inscription.setCommunity(CommunityDAO.parseObjectToCommunity(obj.getParseObject("community").fetchIfNeeded()));
+        return inscription;
+    }
+    public static Inscription parseObjectToInscriptionUser(ParseObject obj) throws ParseException {
+        Inscription inscription= parseObjectToInscription(obj);
+        inscription.setUser(PlayerDAO.parseObjectToPlayer(obj.getParseObject("user").fetchIfNeeded()));
+        return inscription;
+    }
+
 }

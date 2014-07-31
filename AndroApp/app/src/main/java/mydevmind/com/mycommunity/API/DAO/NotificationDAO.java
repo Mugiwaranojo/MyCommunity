@@ -13,24 +13,23 @@ import java.util.List;
 
 import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.model.Community;
-import mydevmind.com.mycommunity.model.Inscription;
 import mydevmind.com.mycommunity.model.Notification;
 import mydevmind.com.mycommunity.model.Player;
 
 /**
  * Created by Joan on 23/07/2014.
  */
-public class NotificationDAO extends DAO<Notification> {
+public class NotificationDAO implements IDAO<Notification> {
 
     private static NotificationDAO instance;
 
-    private NotificationDAO(Context context) {
-        super(context);
+    private NotificationDAO() {
+
     }
 
-    public static NotificationDAO getInstance(Context context){
+    public static NotificationDAO getInstance(){
         if(instance==null){
-            instance = new NotificationDAO(context);
+            instance = new NotificationDAO();
         }
         return  instance;
     }
@@ -49,7 +48,11 @@ public class NotificationDAO extends DAO<Notification> {
         notification.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                listener.onApiResultListener(parseObjectToNotification(notification), e);
+                try {
+                    listener.onApiResultListener(parseObjectToNotification(notification), e);
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
     }
@@ -72,7 +75,11 @@ public class NotificationDAO extends DAO<Notification> {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
                 if(parseObjects.size()==1){
-                   listener.onApiResultListener(parseObjectToNotification(parseObjects.get(0)), e);
+                    try {
+                        listener.onApiResultListener(parseObjectToNotification(parseObjects.get(0)), e);
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
                 }else {
                    listener.onApiResultListener(null, e);
                 }
@@ -87,13 +94,15 @@ public class NotificationDAO extends DAO<Notification> {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Notification");
         query.whereEqualTo("community", fetchedCommunity);
         query.include("Player");
-        query.include("Community");
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
                 for(ParseObject obj: parseObjects){
-                    notifications.add(parseObjectToNotification(obj));
-
+                    try {
+                        notifications.add(parseObjectToNotification(obj));
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
                 }
                 listener.onApiResultListener(notifications, e);
             }
@@ -102,7 +111,7 @@ public class NotificationDAO extends DAO<Notification> {
 
     }
 
-    public static Notification parseObjectToNotification(ParseObject obj){
+    public static Notification parseObjectToNotification(ParseObject obj) throws ParseException {
         Notification notification= new Notification();
         notification.setObjectId(obj.getObjectId());
         notification.setTitle(obj.getString("title"));
@@ -111,7 +120,7 @@ public class NotificationDAO extends DAO<Notification> {
         notification.setUpdatedAt(obj.getUpdatedAt());
         notification.setCommunity(new Community(obj.getParseObject("community").getObjectId()));
         if(obj.getParseObject("writer")!=null){
-            notification.setWriter(new Player(obj.getParseObject("writer").getObjectId()));
+            notification.setWriter(PlayerDAO.parseObjectToPlayer(obj.getParseObject("writer").fetchIfNeeded()));
         }
         return notification;
     }

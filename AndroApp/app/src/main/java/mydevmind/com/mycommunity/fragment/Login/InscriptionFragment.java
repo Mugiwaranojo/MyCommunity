@@ -73,6 +73,7 @@ public class InscriptionFragment extends Fragment {
         spinner.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         spinner.setTitle("Inscription ...");
         spinner.setMessage("Patientez, ceci peut prendre quelques secondes");
+        spinner.getWindow().setBackgroundDrawableResource(R.drawable.background_blue);
         spinner.setCancelable(false);
 
         inscriptionButton = (Button) v.findViewById(R.id.buttonInscription);
@@ -83,7 +84,7 @@ public class InscriptionFragment extends Fragment {
                     spinner.show();
                     final Player player= new Player(userName.getText().toString(), userPassword.getText().toString());
                      Community community= new Community(communityName.getText().toString(), communityPassword.getText().toString());
-                     final CommunityAPIManager apiManager= new CommunityAPIManager(getActivity());
+                     final CommunityAPIManager apiManager= CommunityAPIManager.getInstance(getActivity());
                      apiManager.setPlayerListener(new IAPIResultListener<Player>() {
                         @Override
                         public void onApiResultListener(Player obj, ParseException e) {

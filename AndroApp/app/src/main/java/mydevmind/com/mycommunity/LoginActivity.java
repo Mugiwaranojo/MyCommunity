@@ -15,7 +15,6 @@ public class LoginActivity extends Activity implements IFragmentActionListener {
 
     public static final Integer LOGIN_ACTION_INSCRIPTION= 1705;
     public static final Integer LOGIN_ACTION_RETURN= 1706;
-    public static final Integer LOGIN_ACTION_CONNECT= 1707;
 
     private LoginFragment login;
     private InscriptionFragment inscription;
@@ -29,15 +28,8 @@ public class LoginActivity extends Activity implements IFragmentActionListener {
         if(login==null) {
             login = new LoginFragment();
             login.setActionListener(this);
-
-            inscription = new InscriptionFragment();
-            inscription.setActionListener(this);
-
-
             getFragmentManager().beginTransaction()
                     .add(R.id.container, login)
-                    .add(R.id.container, inscription)
-                    .hide(inscription)
                     .commit();
         }
     }
@@ -46,9 +38,12 @@ public class LoginActivity extends Activity implements IFragmentActionListener {
     public void onFragmentAction(Integer action, Object obj) {
         if(action.equals(LOGIN_ACTION_INSCRIPTION)){
             isPageLogin=false;
+            if(inscription==null){
+                inscription = new InscriptionFragment();
+                inscription.setActionListener(this);
+            }
             getFragmentManager().beginTransaction()
-                 .hide(login)
-                 .show(inscription)
+                 .replace(R.id.container, inscription)
                  .commit();
         }else if(action.equals(LOGIN_ACTION_RETURN)){
             this.onBackPressed();
@@ -62,8 +57,7 @@ public class LoginActivity extends Activity implements IFragmentActionListener {
             super.onBackPressed();
         }else{
             getFragmentManager().beginTransaction()
-                    .hide(inscription)
-                    .show(login)
+                    .replace(R.id.container, login)
                     .commit();
             isPageLogin=true;
         }

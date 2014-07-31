@@ -9,28 +9,25 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import mydevmind.com.mycommunity.API.IAPIResultListener;
-import mydevmind.com.mycommunity.model.Community;
-import mydevmind.com.mycommunity.model.Inscription;
 import mydevmind.com.mycommunity.model.Player;
 
 /**
  * Created by Joan on 21/07/2014.
  */
-public class PlayerDAO extends DAO<Player> {
+public class PlayerDAO implements IDAO<Player> {
 
     public static PlayerDAO instance;
 
-    private PlayerDAO(Context context) {
-        super(context);
+    private PlayerDAO() {
+
     }
 
-    public  static PlayerDAO getInstance(Context context){
+    public  static PlayerDAO getInstance(){
         if(instance==null){
-            instance= new PlayerDAO(context);
+            instance= new PlayerDAO();
         }
         return instance;
     }
@@ -111,19 +108,6 @@ public class PlayerDAO extends DAO<Player> {
         });
     }
 
-    public Player find(String objId){
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
-        query.whereEqualTo("objectId", objId);
-        try {
-            List<ParseObject> parseObjects = query.find();
-            if(parseObjects.size()==1){
-               return  parseObjectToPlayer(parseObjects.get(0));
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
     public void findByUserPassword(String login, String password, final IAPIResultListener<Player> listener){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Player");
         query.whereEqualTo("name", login);

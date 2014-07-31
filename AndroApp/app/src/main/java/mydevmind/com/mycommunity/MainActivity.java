@@ -15,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 
 import com.parse.ParseException;
 
+import mydevmind.com.mycommunity.API.CommunityAPIManager;
 import mydevmind.com.mycommunity.fragment.ClassementFragment;
 import mydevmind.com.mycommunity.fragment.CommunityFragment;
 import mydevmind.com.mycommunity.fragment.IFragmentActionListener;
@@ -34,7 +35,15 @@ public class MainActivity extends Activity
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
-    private CharSequence mTitle;
+    private static CharSequence mTitle;
+
+    public static CharSequence getmTitle() {
+        return mTitle;
+    }
+
+    public static void setmTitle(CharSequence sequence) {
+        mTitle = sequence;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +59,6 @@ public class MainActivity extends Activity
                 .add(R.id.container, communityFragment)
                 .commit();
 
-        mTitle = getTitle();
-
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
@@ -63,7 +70,6 @@ public class MainActivity extends Activity
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         if (findViewById(R.id.listViewMainInformations) != null){
-            mTitle = CommunityFragment.getCurrentCommunity().getName();
             if(position==0) {
                if(classementFragment==null){
                    fragmentManager.beginTransaction()

@@ -111,12 +111,13 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
             mFromSavedInstanceState = true;
         }
 
-        communityAPIManager= new CommunityAPIManager(getActivity());
+        communityAPIManager= CommunityAPIManager.getInstance(getActivity());
 
         spinner = new ProgressDialog(getActivity());
         spinner.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         spinner.setTitle("Chargement ...");
         spinner.setMessage("Patientez, ceci peut prendre quelques secondes");
+        spinner.getWindow().setBackgroundDrawableResource(R.drawable.background_blue);
         spinner.setCancelable(false);
 
         playerDialogFragment= new PlayerDialogFragment();
@@ -136,12 +137,12 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
             @Override
             public void onApiResultListener(Notification obj, ParseException e) {
                 Toast.makeText(getActivity(), "Joueur ajouté", Toast.LENGTH_SHORT).show();
-                CommunityFragment.getCurrentCommunity().getNotifications().add(obj);
+                communityAPIManager.getCurrentCommunity().getNotifications().add(obj);
                 spinner.dismiss();
                 actionLister.onFragmentAction(ACTION_ADD_PLAYER, obj);
             }
         });
-        communityAPIManager.addPlayerInCommunity(player, CommunityFragment.getCurrentCommunity());
+        communityAPIManager.addPlayerInCommunity(player);
 
     }
 
@@ -152,7 +153,7 @@ public class NavigationDrawerFragment extends Fragment implements PlayerDialogFr
             @Override
             public void onApiResultListener(Match obj, ParseException e) {
                 Toast.makeText(getActivity(), "Match ajouté", Toast.LENGTH_SHORT).show();
-                CommunityFragment.getCurrentCommunity().getMatches().add(obj);
+                communityAPIManager.getCurrentCommunity().getMatches().add(obj);
                 spinner.dismiss();
                 actionLister.onFragmentAction(ACTION_ADD_MATCH, obj);
             }

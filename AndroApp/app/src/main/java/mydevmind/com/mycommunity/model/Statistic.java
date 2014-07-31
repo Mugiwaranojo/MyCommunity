@@ -3,7 +3,7 @@ package mydevmind.com.mycommunity.model;
 /**
  * Created by Mugiwara on 29/07/2014.
  */
-public class Statistic {
+public class Statistic implements Comparable {
 
     private Player player;
     private Integer play=0, won=0, lose=0,draw=0, goalDone=0, goalReceive=0;
@@ -104,5 +104,10 @@ public class Statistic {
         statistic.setGoalDone(goalDone);
         statistic.setGoalReceive(goalReceive);
         return statistic;
+    }
+
+    @Override
+    public int compareTo(Object another) {
+        return this.getPoints().compareTo(((Statistic)another).getPoints());
     }
 }

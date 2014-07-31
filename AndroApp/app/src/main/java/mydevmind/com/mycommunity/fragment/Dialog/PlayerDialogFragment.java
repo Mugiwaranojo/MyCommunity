@@ -42,6 +42,7 @@ public class PlayerDialogFragment extends DialogFragment {
         dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         dialog.setContentView(R.layout.dialog_add_player);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.background_blue);
         dialog.show();
 
         editTextLogin = (EditText) dialog.findViewById(R.id.editTextPName);

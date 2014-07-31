@@ -8,29 +8,25 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
-import java.util.ArrayList;
+
 import java.util.List;
 
 import mydevmind.com.mycommunity.API.IAPIResultListener;
 import mydevmind.com.mycommunity.model.Community;
-import mydevmind.com.mycommunity.model.Inscription;
-import mydevmind.com.mycommunity.model.Match;
-import mydevmind.com.mycommunity.model.Notification;
-import mydevmind.com.mycommunity.model.Player;
 
 /**
  * Created by Joan on 22/07/2014.
  */
-public class CommunityDAO extends DAO<Community> {
+public class CommunityDAO implements IDAO<Community> {
 
     private static CommunityDAO instance;
-    private CommunityDAO(Context context) {
-        super(context);
+    private CommunityDAO() {
+
     }
 
-    public static CommunityDAO getInstance(Context context) {
+    public static CommunityDAO getInstance() {
         if(instance==null){
-              instance = new CommunityDAO(context);
+              instance = new CommunityDAO();
         }
         return  instance;
     }

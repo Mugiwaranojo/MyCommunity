@@ -56,9 +56,10 @@ public class LoginFragment extends Fragment implements IAPIResultListener<Player
         spinner.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         spinner.setTitle("Connection ...");
         spinner.setMessage("Patientez, ceci peut prendre quelques secondes");
+        spinner.getWindow().setBackgroundDrawableResource(R.drawable.background_blue);
         spinner.setCancelable(false);
 
-        apiManager = new CommunityAPIManager(getActivity());
+        apiManager = CommunityAPIManager.getInstance(getActivity());
         apiManager.setPlayerListener(this);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -81,7 +82,6 @@ public class LoginFragment extends Fragment implements IAPIResultListener<Player
     @Override
     public void onApiResultListener(Player player, ParseException e) {
         if(player!=null){
-            Toast.makeText(getActivity().getApplicationContext(), "Connection OK!!!", Toast.LENGTH_SHORT).show();
             Intent connectionIntent= new Intent(getActivity(), MainActivity.class);
             connectionIntent.putExtra("player", player);
             startActivity(connectionIntent);

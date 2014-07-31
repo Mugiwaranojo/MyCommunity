@@ -19,17 +19,17 @@ import mydevmind.com.mycommunity.model.Player;
 /**
  * Created by Joan on 23/07/2014.
  */
-public class MatchDAO extends DAO<Match> {
+public class MatchDAO implements IDAO<Match> {
 
     private static MatchDAO instance;
 
-    private MatchDAO(Context context) {
-        super(context);
+    private MatchDAO() {
+
     }
 
-    public static MatchDAO getInstance(Context context){
+    public static MatchDAO getInstance(){
         if(instance==null){
-            instance= new MatchDAO(context);
+            instance= new MatchDAO();
         }
         return instance;
     }
@@ -49,7 +49,11 @@ public class MatchDAO extends DAO<Match> {
         match.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                listener.onApiResultListener(parseObjectToMatch(match), e);
+                try {
+                    listener.onApiResultListener(parseObjectToMatch(match), e);
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
     }
@@ -73,7 +77,12 @@ public class MatchDAO extends DAO<Match> {
             public void done(List<ParseObject> parseObjects, ParseException e) {
                 if(parseObjects.size()==1){
                     ParseObject obj= parseObjects.get(0);
-                    Match match= parseObjectToMatch(obj);
+                    Match match= null;
+                    try {
+                        match = parseObjectToMatch(obj);
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
                     listener.onApiResultListener(match, e);
                 }else {
                     listener.onApiResultListener(null, e);
@@ -88,26 +97,29 @@ public class MatchDAO extends DAO<Match> {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Match");
         query.whereEqualTo("community", fetchedCommunity);
         query.include("Player");
-        query.include("Community");
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
                 for(ParseObject obj: parseObjects){
-                    matches.add(parseObjectToMatch(obj));
+                    try {
+                        matches.add(parseObjectToMatch(obj));
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
                 }
                 listener.onApiResultListener(matches, e);
             }
         });
     }
 
-    private Match parseObjectToMatch(ParseObject obj){
+    private Match parseObjectToMatch(ParseObject obj) throws ParseException {
         Match match= new Match();
         match.setObjectId(obj.getObjectId());
         match.setCreatedAt(obj.getCreatedAt());
         match.setUpdatedAt(obj.getUpdatedAt());
         match.setCommunity(new Community(obj.getParseObject("community").getObjectId()));
-        match.setPlayerFrom(new Player(obj.getParseObject("playerFrom").getObjectId()));
-        match.setPlayerTo(new Player(obj.getParseObject("playerTo").getObjectId()));
+        match.setPlayerFrom(PlayerDAO.parseObjectToPlayer(obj.getParseObject("playerFrom").fetchIfNeeded()));
+        match.setPlayerTo(PlayerDAO.parseObjectToPlayer(obj.getParseObject("playerTo").fetchIfNeeded()));
         match.setScoreFrom(obj.getInt("scoreFrom"));
         match.setScoreTo(obj.getInt("scoreTo"));
         match.setComment(obj.getString("comment"));

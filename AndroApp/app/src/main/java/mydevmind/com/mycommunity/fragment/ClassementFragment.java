@@ -8,10 +8,13 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import mydevmind.com.mycommunity.API.CommunityAPIManager;
 import mydevmind.com.mycommunity.R;
 import mydevmind.com.mycommunity.fragment.Adapter.ClassementAdapter;
+import mydevmind.com.mycommunity.model.Community;
 import mydevmind.com.mycommunity.model.Player;
 import mydevmind.com.mycommunity.model.Statistic;
 
@@ -42,9 +45,11 @@ public class ClassementFragment extends Fragment {
 
     public ArrayList<Statistic> getStatistics(){
         ArrayList<Statistic> statistics= new ArrayList<Statistic>();
-        for(Player player: CommunityFragment.getCurrentCommunity().getPlayers()){
-            statistics.add(Statistic.getPlayerStatistic(player, CommunityFragment.getCurrentCommunity()));
+        Community community= CommunityAPIManager.getInstance(getActivity()).getCurrentCommunity();
+        for(Player player: community.getPlayers()){
+            statistics.add(Statistic.getPlayerStatistic(player, community));
         }
+        Collections.sort(statistics, Collections.reverseOrder());
         return statistics;
     }
 }

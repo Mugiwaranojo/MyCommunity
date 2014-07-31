@@ -2,11 +2,13 @@ package mydevmind.com.mycommunity.fragment.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -53,8 +55,11 @@ public class InformationAdapter extends BaseAdapter {
         txtTitle.setText(informations.get(i).getTitle());
         TextView txtContent= (TextView) rowView.findViewById(R.id.textViewInfoText);
         txtContent.setText(informations.get(i).getText());
-        if(informations.get(i) instanceof Match){
+        if(informations.get(i) instanceof Match) {
             txtContent.setGravity(Gravity.CENTER_HORIZONTAL);
+            LinearLayout layout = (LinearLayout) rowView.findViewById(R.id.linearLayoutInformationsItem);
+            layout.setBackgroundResource(R.drawable.background_match);
+            layout.invalidate();
         }
         TextView txtDate= (TextView) rowView.findViewById(R.id.textViewInfoDate);
         txtDate.setText(informations.get(i).getDate().toLocaleString());

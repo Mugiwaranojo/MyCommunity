@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:gravity="center_horizontal"
-    android:layout_height="match_parent">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:alpha="0.75"
+    android:background="@drawable/background_information"
+    android:id="@+id/linearLayoutInformationsItem">
 
     <TextView
         android:layout_width="match_parent"
@@ -13,6 +17,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Large Text"
         android:id="@+id/textViewInfoTitle"
+        android:textColor="@android:color/holo_blue_light"
         android:layout_gravity="center_horizontal" />
 
     <TextView
@@ -30,6 +35,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Small Text"
         android:id="@+id/textViewInfoDate"
+        android:textColor="@android:color/holo_blue_light"
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal" />
 </LinearLayout>
