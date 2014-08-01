@@ -201,7 +201,6 @@ public class CommunityAPIManager implements IAPIResultListener<ArrayList<Inscrip
                 @Override
                 public void onApiResultListener(ArrayList<Match> matches, ParseException e) {
                     currentCommunity.setMatches(matches);
-                    publishProgress(matches);
                     onCancelled();
                 }
             });
@@ -209,7 +208,6 @@ public class CommunityAPIManager implements IAPIResultListener<ArrayList<Inscrip
                 @Override
                 public void onApiResultListener(ArrayList<Notification> notifications, ParseException e) {
                     currentCommunity.setNotifications(notifications);
-                    publishProgress(notifications);
                     onCancelled();
                 }
             });
@@ -221,7 +219,6 @@ public class CommunityAPIManager implements IAPIResultListener<ArrayList<Inscrip
                         players.add(inscription.getUser());
                     }
                     currentCommunity.setPlayers(players);
-                    publishProgress(players);
                     onCancelled();
                 }
             });
