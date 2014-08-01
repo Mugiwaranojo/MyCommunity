@@ -97,17 +97,16 @@ public class NotificationDAO implements IDAO<Notification> {
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
-                for(ParseObject obj: parseObjects){
-                    try {
+                try {
+                    for(ParseObject obj: parseObjects){
                         notifications.add(parseObjectToNotification(obj));
-                    } catch (ParseException e1) {
-                        e1.printStackTrace();
                     }
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
                 }
                 listener.onApiResultListener(notifications, e);
             }
         });
-
 
     }
 

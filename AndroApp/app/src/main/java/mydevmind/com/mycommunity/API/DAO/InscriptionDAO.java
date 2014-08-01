@@ -106,25 +106,24 @@ public class InscriptionDAO implements IDAO<Inscription> {
         });
     }
 
-    public void findByCommunity(Community community, final IAPIResultListener<ArrayList<Inscription
-            >> listener){
+    public void findByCommunity(Community community, final IAPIResultListener<ArrayList<Inscription>> listener){
         final ArrayList<Inscription> resultList= new ArrayList<Inscription>();
         ParseObject fetchedCommunity = ParseObject.createWithoutData("Community", community.getObjectId());
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Inscription");
         query.whereEqualTo("community", fetchedCommunity);
         query.include("Player");
         query.findInBackground(new FindCallback<ParseObject>() {
-           @Override
-           public void done(List<ParseObject> parseObjects, ParseException e) {
-               for(ParseObject obj: parseObjects){
-                   try {
-                       resultList.add(parseObjectToInscriptionUser(obj));
-                   } catch (ParseException e1) {
-                       e1.printStackTrace();
-                   }
-               }
-               listener.onApiResultListener(resultList, e);
-           }
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                try {
+                    for(ParseObject obj: parseObjects){
+                        resultList.add(parseObjectToInscriptionUser(obj));
+                    }
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
+                listener.onApiResultListener(resultList, e);
+            }
         });
     }
 

@@ -1,12 +1,14 @@
 package mydevmind.com.mycommunity.API;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.parse.Parse;
 import com.parse.ParseException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.Executor;
 
 import mydevmind.com.mycommunity.API.DAO.CommunityDAO;
 import mydevmind.com.mycommunity.API.DAO.InscriptionDAO;
@@ -24,7 +26,7 @@ import mydevmind.com.mycommunity.model.Player;
 /**
  * Created by Joan on 21/07/2014.
  */
-public class CommunityAPIManager {
+public class CommunityAPIManager implements IAPIResultListener<ArrayList<Inscription>> {
 
     private static final String APP_ID="4UNxW53O9e42UjNxLaGma5foAtZQpE22H2IwZ9y3";
     private static final String CLIENT_KEY="zqk5C0BKHuWmSaIrSfuWFVyH4MRlAd7g3iY9uUCg";
@@ -37,8 +39,8 @@ public class CommunityAPIManager {
     private static IAPIResultListener<Match> matchListener;
     private static IAPIResultListener<ArrayList<Player>> playersListListener;
 
-    private Player curentPlayer;
-    private Community currentCommunity;
+    private static Player curentPlayer;
+    private static Community currentCommunity;
 
     private static CommunityAPIManager instance;
 
@@ -47,9 +49,7 @@ public class CommunityAPIManager {
     }
 
     public static CommunityAPIManager getInstance(Context context){
-        if(instance==null){
-            instance= new CommunityAPIManager(context);
-        }
+        instance= new CommunityAPIManager(context);
         return instance;
     }
 
@@ -101,19 +101,8 @@ public class CommunityAPIManager {
         PlayerDAO.getInstance().findByUserPassword(login, password, new IAPIResultListener<Player>() {
             @Override
             public void onApiResultListener(final Player player, ParseException e) {
-                final ArrayList<Community> userCommunities= new ArrayList<Community>();
-                InscriptionDAO.getInstance().findByUser(player, new IAPIResultListener<ArrayList<Inscription>>() {
-                    @Override
-                    public void onApiResultListener(ArrayList<Inscription> inscriptionArrayList, ParseException e) {
-                        for(Inscription inscription: inscriptionArrayList){
-                            userCommunities.add(inscription.getCommunity());
-                        }
-                        player.setCommunities(userCommunities);
-                        setCurentPlayer(player);
-                        setCurrentCommunity(userCommunities.get(0));
-                        playerListener.onApiResultListener(player, e);
-                    }
-                });
+                setCurentPlayer(player);
+                playerListener.onApiResultListener(player, e);
             }
         });
     }
@@ -175,44 +164,6 @@ public class CommunityAPIManager {
         });
     }
 
-    public void fetchInformations(){
-        final ArrayList<Information> informationsList = new ArrayList<Information>();
-        NotificationDAO.getInstance().findByCommunity(getCurrentCommunity(), new IAPIResultListener<ArrayList<Notification>>() {
-            @Override
-            public void onApiResultListener(ArrayList<Notification> notificationsList, ParseException e) {
-                getCurrentCommunity().setNotifications(notificationsList);
-                for(Notification n: notificationsList){
-                    informationsList.add(n);
-                }
-                MatchDAO.getInstance().findByCommunity(getCurrentCommunity(), new IAPIResultListener<ArrayList<Match>>() {
-                    @Override
-                    public void onApiResultListener(ArrayList<Match> matchesList, ParseException e) {
-                        getCurrentCommunity().setMatches(matchesList);
-                        for (Match m: matchesList){
-                            informationsList.add(m);
-                        }
-                        Collections.sort(informationsList, Collections.reverseOrder());
-                        informationsListener.onApiResultListener(informationsList, e);
-                    }
-                });
-            }
-        });
-    }
-
-    public void fetchPlayers(){
-        final ArrayList<Player> playersList= new ArrayList<Player>();
-        InscriptionDAO.getInstance().findByCommunity(getCurrentCommunity(), new IAPIResultListener<ArrayList<Inscription>>() {
-            @Override
-            public void onApiResultListener(ArrayList<Inscription> inscriptionArrayList, ParseException e) {
-                for (Inscription inscription: inscriptionArrayList){
-                    playersList.add(inscription.getUser());
-                }
-                getCurrentCommunity().setPlayers(playersList);
-                playersListListener.onApiResultListener(playersList, e);
-            }
-        });
-    }
-
     public void addMatch(Match match){
         MatchDAO.getInstance().create(match, new IAPIResultListener<Match>() {
             @Override
@@ -220,5 +171,72 @@ public class CommunityAPIManager {
                 matchListener.onApiResultListener(obj, e);
             }
         });
+    }
+
+    public void fetchUserCommunities(){
+        InscriptionDAO.getInstance().findByUser(getCurentPlayer(), this);
+    }
+
+    public void fetchInformations(){
+        FetchInformationsAsyncTask fetchInformations= new FetchInformationsAsyncTask();
+        fetchInformations.execute();
+    }
+
+    @Override
+    public void onApiResultListener(ArrayList<Inscription> inscriptionArrayList, ParseException e) {
+        ArrayList<Community> userCommunities= new ArrayList<Community>();
+        for (Inscription inscription : inscriptionArrayList) {
+            userCommunities.add(inscription.getCommunity());
+        }
+        getCurentPlayer().setCommunities(userCommunities);
+        setCurrentCommunity(userCommunities.get(0));
+        communityListListener.onApiResultListener(userCommunities, e);
+    }
+
+    private class FetchInformationsAsyncTask extends AsyncTask {
+
+        @Override
+        protected Object doInBackground(Object[] params) {
+            MatchDAO.getInstance().findByCommunity(getCurrentCommunity(), new IAPIResultListener<ArrayList<Match>>() {
+                @Override
+                public void onApiResultListener(ArrayList<Match> matches, ParseException e) {
+                    currentCommunity.setMatches(matches);
+                    publishProgress(matches);
+                    onCancelled();
+                }
+            });
+            NotificationDAO.getInstance().findByCommunity(getCurrentCommunity(), new IAPIResultListener<ArrayList<Notification>>() {
+                @Override
+                public void onApiResultListener(ArrayList<Notification> notifications, ParseException e) {
+                    currentCommunity.setNotifications(notifications);
+                    publishProgress(notifications);
+                    onCancelled();
+                }
+            });
+            InscriptionDAO.getInstance().findByCommunity(getCurrentCommunity(), new IAPIResultListener<ArrayList<Inscription>>() {
+                @Override
+                public void onApiResultListener(ArrayList<Inscription> inscriptions, ParseException e) {
+                    ArrayList<Player> players= new ArrayList<Player>();
+                    for(Inscription inscription: inscriptions){
+                        players.add(inscription.getUser());
+                    }
+                    currentCommunity.setPlayers(players);
+                    publishProgress(players);
+                    onCancelled();
+                }
+            });
+            return currentCommunity;
+        }
+
+        @Override
+        protected void onCancelled() {
+            Boolean isLoaded= currentCommunity.getMatches()!=null&&currentCommunity.getNotifications()!=null&&currentCommunity.getPlayers()!=null;
+            if(isLoaded) {
+                super.onCancelled();
+                informationsListener.onApiResultListener(getCurrentCommunity().getInformations(), null);
+            }
+        }
+
+
     }
 }

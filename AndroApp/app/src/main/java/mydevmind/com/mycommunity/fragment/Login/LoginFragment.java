@@ -61,7 +61,6 @@ public class LoginFragment extends Fragment implements IAPIResultListener<Player
 
         apiManager = CommunityAPIManager.getInstance(getActivity());
         apiManager.setPlayerListener(this);
-
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

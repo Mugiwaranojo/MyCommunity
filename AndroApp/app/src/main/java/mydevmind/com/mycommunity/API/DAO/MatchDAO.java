@@ -100,7 +100,7 @@ public class MatchDAO implements IDAO<Match> {
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
-                for(ParseObject obj: parseObjects){
+                for(ParseObject obj: parseObjects) {
                     try {
                         matches.add(parseObjectToMatch(obj));
                     } catch (ParseException e1) {
